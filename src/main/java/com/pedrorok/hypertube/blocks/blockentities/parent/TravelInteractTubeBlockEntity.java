@@ -5,8 +5,6 @@ import com.pedrorok.hypertube.config.ServerConfig;
 import com.pedrorok.hypertube.core.sound.TubeSoundManager;
 import com.pedrorok.hypertube.registry.ModParticles;
 import com.pedrorok.hypertube.registry.ModSounds;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -38,7 +36,7 @@ public abstract class TravelInteractTubeBlockEntity extends TubeBlockEntity {
     }
 
 
-    protected void spawnSuctionParticle(Level level, BlockPos blockPos, Direction face) {
+    public void spawnSuctionParticle(Level level, BlockPos blockPos, Direction face) {
         face = face.getOpposite();
         Vec3 center = Vec3.atCenterOf(blockPos);
         RandomSource rand = level.getRandom();
@@ -76,39 +74,8 @@ public abstract class TravelInteractTubeBlockEntity extends TubeBlockEntity {
 
 
     protected void playClientEffects(TubeSoundManager.TubeAmbientSound sound) {
-        BlockState state = this.getBlockState();
-        BlockPos pos = this.getBlockPos();
-
-        boolean isOpen = state.getValue(HyperEntranceBlock.OPEN);
-
-        LocalPlayer player = Minecraft.getInstance().player;
-        Vec3 source = Vec3.atCenterOf(pos);
-        Vec3 listener = player.position();
-
-        Vec3 worldDirection = source.subtract(listener).normalize();
-
-        Vec3 forward = player.getLookAngle().normalize();
-        Vec3 up = player.getUpVector(1.0F).normalize();
-        Vec3 right = forward.cross(up).normalize();
-
-        double x = worldDirection.dot(right);
-        double y = worldDirection.dot(up);
-        double z = worldDirection.dot(forward);
-
-        Vec3 rotatedDirection = new Vec3(x, y, z).normalize();
-
-        double distance = player.distanceToSqr(source);
-
-        if (isOpen) {
-            spawnSuctionParticle(level, pos, state.getValue(HyperEntranceBlock.FACING));
-        }
-
-        sound.enableClientPlayerSound(
-                player,
-                rotatedDirection,
-                distance,
-                isOpen
-        );
+        // Client-only code lives in TubeClientEffects so dedicated servers never load client classes (26.2 has no @OnlyIn stripping)
+        com.pedrorok.hypertube.client.TubeClientEffects.playTubeEffects(this, sound);
     }
 
     @Nullable

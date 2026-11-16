@@ -16,7 +16,6 @@ import com.pedrorok.hypertube.utils.JunctionDirectionUtils;
 import com.pedrorok.hypertube.utils.ModColors;
 import com.pedrorok.hypertube.utils.TubePulseRenderer;
 import lombok.Getter;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -118,42 +117,9 @@ public class HyperJunctionBlockEntity extends ActionTubeBlockEntity {
 
     /** Goggle lines for this block; shown by the client HypertubeTooltipBehaviour (26.2 / Create Fly moved goggles client-side). */
     public boolean addHypertubeGoggleInfo(List<Component> tooltip) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null) return false;
-        if (mc.player.tickCount % 10 != 0) return false;
-        if (mc.player.getPersistentData().getBooleanOr(TravelConstants.TRAVEL_TAG, false)) return false;
-
-        List<Direction> connectedFaces = JunctionDirectionUtils.getConnectedFaces(getBlockState(), null, (HyperJunctionBlock) getBlockState().getBlock());
-        renderFromDirections(connectedFaces, 0.3f, ModColors.GREEN, 0.72f);
-        if (!getBlockState().getValue(HyperJunctionBlock.JUNCTION_MODE).equals(JunctionMode.AUTOMATIC)) {
-            List<Direction> fromCenterDirection = JunctionDirectionUtils.getConnectedFaces(getBlockState(), getBlockState().getValue(HyperJunctionBlock.FACING), (HyperJunctionBlock) getBlockState().getBlock());
-            IConnection connectionInDirection = getConnectionInDirection(getBlockState().getValue(HyperJunctionBlock.FACING));
-            if (connectionInDirection != null) {
-                BezierConnection thisEntranceConnection = connectionInDirection.getThisEntranceConnection(mc.level);
-                if (thisEntranceConnection != null) {
-                    boolean inverted = thisEntranceConnection.isInverted(getBlockPos());
-                    BlockPos pos = thisEntranceConnection.getFromPos().pos();
-                    TubePulseRenderer.start(pos, thisEntranceConnection, !inverted, 2, 0.1f, 0.2f, ModColors.ORANGE, 2, 8, true, 0.6f);
-                }
-            }
-            renderFromDirections(fromCenterDirection, 0.2f, ModColors.ORANGE, 0.6f);
-        }
-
-        return false;
+        return com.pedrorok.hypertube.client.TubeClientEffects.junctionGoggleInfo(this);
     }
 
-    private void renderFromDirections(List<Direction> directions, float speed, int color, float radius) {
-        Minecraft mc = Minecraft.getInstance();
-        for (Direction direction : directions) {
-            IConnection iConnection = getConnectionInDirection(direction);
-            if (iConnection == null) continue;
-            BezierConnection connection = iConnection.getThisEntranceConnection(mc.level);
-            if (connection == null) continue;
-            boolean inverted = connection.isInverted(getBlockPos());
-            BlockPos pos = connection.getFromPos().pos();
-            TubePulseRenderer.start(pos, connection, inverted, 2, 0.1f, speed, color, 0.2f, 2, false, radius);
-        }
-    }
 
     @Override
     public List<IConnection> getConnections() {
