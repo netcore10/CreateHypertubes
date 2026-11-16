@@ -30,6 +30,11 @@ neoForge {
         client {
             client()
         }
+        // Straight into run/saves/Test, to check world loading (datapack, recipes) without clicking through menus
+        worldClient {
+            client()
+            programArguments.addAll '--quickPlaySingleplayer', 'Test'
+        }
         server {
             server()
             programArgument '--nogui'
