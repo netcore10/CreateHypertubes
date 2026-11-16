@@ -8,11 +8,11 @@ import com.pedrorok.hypertube.core.collision.TubeCollision.Polyline;
 import com.pedrorok.hypertube.core.collision.TubeFiller;
 import com.pedrorok.hypertube.core.connection.BezierConnection;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.event.RenderHighlightEvent;
+import net.neoforged.neoforge.client.event.ExtractBlockOutlineRenderStateEvent;
 
 import java.util.List;
 
@@ -32,13 +32,14 @@ public final class TubePathOutline {
     private TubePathOutline() {
     }
 
-    public static void renderTubeOutline(RenderHighlightEvent.Block event) {
+    // 26.2: outlines are extracted, then drawn through a custom outline renderer (returning true replaces vanilla's)
+    public static void renderTubeOutline(ExtractBlockOutlineRenderStateEvent event) {
         Level level = Minecraft.getInstance().level;
         if (level == null) {
             return;
         }
 
-        BlockPos hit = event.getTarget().getBlockPos();
+        BlockPos hit = event.getBlockPos();
         if (!(level.getBlockEntity(hit) instanceof TubePathBlockEntity)) {
             return;
         }
@@ -47,19 +48,19 @@ public final class TubePathOutline {
             return;
         }
 
-        event.setCanceled(true);
-        draw(event, bezier, bezier.getFromPos().pos(), level);
-    }
-
-    private static void draw(RenderHighlightEvent.Block event, BezierConnection bezier, BlockPos origin, Level level) {
-        List<Vec3> points = bezier.getBezierPoints(level, origin);
+        List<Vec3> points = bezier.getBezierPoints(level, bezier.getFromPos().pos());
         if (points.size() < 2) {
             return;
         }
+        event.addCustomRenderer((outline, collector, poseStack, levelState) -> {
+            Vec3 camera = levelState.cameraRenderState.pos;
+            float width = Minecraft.getInstance().getWindow().getAppropriateLineWidth();
+            collector.submitCustomGeometry(poseStack, RenderTypes.lines(), (pose, consumer) -> draw(consumer, pose, points, camera, width));
+            return true;
+        });
+    }
 
-        Vec3 camera = event.getCamera().getPosition();
-        PoseStack.Pose pose = event.getPoseStack().last();
-        VertexConsumer consumer = event.getMultiBufferSource().getBuffer(RenderType.lines());
+    private static void draw(VertexConsumer consumer, PoseStack.Pose pose, List<Vec3> points, Vec3 camera, float width) {
 
         Polyline path = Polyline.of(points);
         float length = (float) path.length();
@@ -72,24 +73,24 @@ public final class TubePathOutline {
                 corners[c] = corners[c].subtract(camera);
             }
             if (i == 0 || i == steps) {
-                loop(consumer, pose, corners);
+                loop(consumer, pose, corners, width);
             }
             if (previous != null) {
                 for (int c = 0; c < 4; c++) {
-                    line(consumer, pose, previous[c], corners[c]);
+                    line(consumer, pose, previous[c], corners[c], width);
                 }
             }
             previous = corners;
         }
     }
 
-    private static void loop(VertexConsumer consumer, PoseStack.Pose pose, Vec3[] corners) {
+    private static void loop(VertexConsumer consumer, PoseStack.Pose pose, Vec3[] corners, float width) {
         for (int c = 0; c < 4; c++) {
-            line(consumer, pose, corners[c], corners[(c + 1) % 4]);
+            line(consumer, pose, corners[c], corners[(c + 1) % 4], width);
         }
     }
 
-    private static void line(VertexConsumer consumer, PoseStack.Pose pose, Vec3 a, Vec3 b) {
+    private static void line(VertexConsumer consumer, PoseStack.Pose pose, Vec3 a, Vec3 b, float width) {
         Vec3 normal = b.subtract(a);
         if (normal.lengthSqr() < 1.0e-9) {
             return;
@@ -97,9 +98,11 @@ public final class TubePathOutline {
         normal = normal.normalize();
         consumer.addVertex(pose.pose(), (float) a.x, (float) a.y, (float) a.z)
                 .setColor(R, G, B, A)
-                .setNormal(pose, (float) normal.x, (float) normal.y, (float) normal.z);
+                .setNormal(pose, (float) normal.x, (float) normal.y, (float) normal.z)
+                .setLineWidth(width);
         consumer.addVertex(pose.pose(), (float) b.x, (float) b.y, (float) b.z)
                 .setColor(R, G, B, A)
-                .setNormal(pose, (float) normal.x, (float) normal.y, (float) normal.z);
+                .setNormal(pose, (float) normal.x, (float) normal.y, (float) normal.z)
+                .setLineWidth(width);
     }
 }

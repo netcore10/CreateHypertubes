@@ -41,7 +41,7 @@ public class PlayerSyncEvents {
     }
 
     private static void syncAllStatesToPlayer(ServerPlayer targetPlayer) {
-        for (ServerPlayer otherPlayer : targetPlayer.getServer().getPlayerList().getPlayers()) {
+        for (ServerPlayer otherPlayer : targetPlayer.level().getServer().getPlayerList().getPlayers()) {
             if (otherPlayer == targetPlayer || !TravelManager.hasHyperTubeData(otherPlayer)) continue;
             PacketDistributor.sendToPlayer(targetPlayer, SyncPersistentDataPacket.create(otherPlayer));
         }

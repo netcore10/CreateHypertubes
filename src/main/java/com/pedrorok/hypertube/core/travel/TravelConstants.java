@@ -1,5 +1,7 @@
 package com.pedrorok.hypertube.core.travel;
 
+import net.minecraft.world.entity.EntityTypes;
+
 import com.pedrorok.hypertube.HypertubeMod;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -39,12 +41,12 @@ public class TravelConstants {
     @OnlyIn(Dist.CLIENT)
     public static class Client {
         public static final Map<EntityType<?>, TravellerEntity> ENTITIES_RENDER = new HashMap<>() {{
-            put(EntityType.PLAYER, TravellerEntity.ofBiped(-0.5f));
-            put(EntityType.VILLAGER, TravellerEntity.ofBiped(-0.8f));
-            put(EntityType.WANDERING_TRADER, TravellerEntity.ofBiped(-0.8f));
-            put(EntityType.SALMON, TravellerEntity.ofFish(0.9f));
-            put(EntityType.COD, TravellerEntity.ofFish(1f));
-            put(EntityType.TROPICAL_FISH, TravellerEntity.ofFish(1f));
+            put(EntityTypes.PLAYER, TravellerEntity.ofBiped(-0.5f));
+            put(EntityTypes.VILLAGER, TravellerEntity.ofBiped(-0.8f));
+            put(EntityTypes.WANDERING_TRADER, TravellerEntity.ofBiped(-0.8f));
+            put(EntityTypes.SALMON, TravellerEntity.ofFish(0.9f));
+            put(EntityTypes.COD, TravellerEntity.ofFish(1f));
+            put(EntityTypes.TROPICAL_FISH, TravellerEntity.ofFish(1f));
         }};
 
     }

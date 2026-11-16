@@ -100,7 +100,7 @@ public class HyperJunctionBlockEntity extends ActionTubeBlockEntity implements I
         float actualSpeed = Math.abs(this.getSpeed());
         Boolean isOpen = state.getValue(HyperJunctionBlock.OPEN);
 
-        LivingEntity nearbyEntity = getNearbyLivingEntities((ServerLevel) level, pos.getCenter());
+        LivingEntity nearbyEntity = getNearbyLivingEntities((ServerLevel) level, Vec3.atCenterOf(pos));
 
         boolean canOpen = nearbyEntity != null && nearbyEntity.getPersistentData().getBooleanOr(TravelConstants.TRAVEL_TAG, false);
 

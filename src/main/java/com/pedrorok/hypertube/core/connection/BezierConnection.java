@@ -72,12 +72,12 @@ public class BezierConnection implements IConnection {
         this.fromPos = fromPos;
         this.toPos = toPos;
         this.tubeSegments = tubeSegments;
-        this.detailLevel = toPos != null ? (int) Math.max(3, fromPos.pos().getCenter().distanceTo(toPos.pos().getCenter())) : 0;
+        this.detailLevel = toPos != null ? (int) Math.max(3, Vec3.atCenterOf(fromPos.pos()).distanceTo(Vec3.atCenterOf(toPos.pos()))) : 0;
         this.cachedRelativeBezierPoints = cachedPoints != null ? cachedPoints : calculateRelativeBezierPoints();
     }
 
     public BezierConnection(SimpleConnection fromPos, @Nullable SimpleConnection toPos) {
-        this(fromPos, toPos, 1, toPos != null ? (int) Math.max(3, fromPos.pos().getCenter().distanceTo(toPos.pos().getCenter())) : 0);
+        this(fromPos, toPos, 1, toPos != null ? (int) Math.max(3, Vec3.atCenterOf(fromPos.pos()).distanceTo(Vec3.atCenterOf(toPos.pos()))) : 0);
     }
 
     public BezierConnection(SimpleConnection fromPos, @Nullable SimpleConnection toPos, int tubeSegments, int detailLevel) {
@@ -248,7 +248,7 @@ public class BezierConnection implements IConnection {
 
     public float distance() {
         if (toPos == null) return 0;
-        return (float) fromPos.pos().getCenter().distanceTo(toPos.pos().getCenter());
+        return (float) Vec3.atCenterOf(fromPos.pos()).distanceTo(Vec3.atCenterOf(toPos.pos()));
     }
 
 

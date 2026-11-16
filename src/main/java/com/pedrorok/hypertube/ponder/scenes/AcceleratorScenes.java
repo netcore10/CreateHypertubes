@@ -1,5 +1,7 @@
 package com.pedrorok.hypertube.ponder.scenes;
 
+import net.minecraft.world.item.ItemStack;
+
 import com.pedrorok.hypertube.blocks.HyperAcceleratorBlock;
 import com.pedrorok.hypertube.blocks.HyperEntranceBlock;
 import com.zurrtum.create.AllItems;
@@ -84,9 +86,9 @@ public class AcceleratorScenes {
                 .text("You can change to BRAKE mode by Right Clicking the Accelerator.");
         scene.idle(10);
         scene.overlay()
-                .showControls(entrancePos.getCenter().add(0,1,0), Pointing.DOWN, 40)
+                .showControls(Vec3.atCenterOf(entrancePos).add(0,1,0), Pointing.DOWN, 40)
                 .rightClick()
-                .withItem(AllItems.WRENCH.asStack());
+                .withItem(new ItemStack(AllItems.WRENCH));
         changeAccelerateMode(scene, entrancePos, false);
         scene.effects().indicateSuccess(entrancePos);
         scene.idle(80);

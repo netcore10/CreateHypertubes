@@ -1,5 +1,7 @@
 package com.pedrorok.hypertube.core.travel.client;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import com.pedrorok.hypertube.HypertubeMod;
 import com.pedrorok.hypertube.core.camera.DetachedPlayerDirController;
 import com.pedrorok.hypertube.core.connection.interfaces.ITubeActionPoint;
@@ -91,7 +93,7 @@ public class ClientTravelPathMover {
             }
 
             if (data.isDone() && !data.isJunctionEnd()) {
-                PacketDistributor.sendToServer(new FinishPathPacket(entity.getUUID()));
+                ClientPacketDistributor.sendToServer(new FinishPathPacket(entity.getUUID()));
                 it.remove();
                 HypertubeMod.LOGGER.debug("Entity {} has finished its path, removing from active paths", id);
                 continue;
@@ -123,7 +125,7 @@ public class ClientTravelPathMover {
 
             Vec3 renderPos = data.getRenderPosition(partialTicks);
 
-            entity.moveTo(renderPos.x, renderPos.y, renderPos.z);
+            entity.snapTo(renderPos.x, renderPos.y, renderPos.z);
         }
     }
 
@@ -289,7 +291,7 @@ public class ClientTravelPathMover {
             if (!actionPoints.remove(actionPos)) return;
             Block block = entity.level().getBlockState(actionPos).getBlock();
             if (block instanceof ITubeActionPoint travelAction) {
-                PacketDistributor.sendToServer(new ActionPointReachPacket(entity.getUUID(), actionPos));
+                ClientPacketDistributor.sendToServer(new ActionPointReachPacket(entity.getUUID(), actionPos));
             }
         }
 

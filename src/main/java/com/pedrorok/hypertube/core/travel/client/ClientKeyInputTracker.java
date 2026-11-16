@@ -1,5 +1,7 @@
 package com.pedrorok.hypertube.core.travel.client;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import com.pedrorok.hypertube.network.packets.MoveDirectionPacket;
 import com.pedrorok.hypertube.registry.ModSounds;
 import com.pedrorok.hypertube.core.data.MoveDirection;
@@ -20,7 +22,7 @@ public class ClientKeyInputTracker {
     private static MoveDirection lastDirection = MoveDirection.RIGHT;
 
     public static void handlePlayerStart() {
-        PacketDistributor.sendToServer(new MoveDirectionPacket(lastDirection));
+        ClientPacketDistributor.sendToServer(new MoveDirectionPacket(lastDirection));
     }
 
     public static MoveDirection handlePlayerInputs() {

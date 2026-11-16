@@ -1,5 +1,7 @@
 package com.pedrorok.hypertube.blocks.blockentities;
 
+import net.minecraft.world.phys.Vec3;
+
 import com.pedrorok.hypertube.HypertubeMod;
 import com.pedrorok.hypertube.blocks.HyperAcceleratorBlock;
 import com.pedrorok.hypertube.blocks.HypertubeBlock;
@@ -89,7 +91,7 @@ public class HyperAcceleratorBlockEntity extends ActionTubeBlockEntity implement
         float actualSpeed = Math.abs(this.getSpeed());
         Boolean isOpen = state.getValue(HyperAcceleratorBlock.OPEN);
 
-        LivingEntity nearbyEntity = getNearbyLivingEntities((ServerLevel) level, pos.getCenter());
+        LivingEntity nearbyEntity = getNearbyLivingEntities((ServerLevel) level, Vec3.atCenterOf(pos));
 
         boolean canOpen = nearbyEntity != null && nearbyEntity.getPersistentData().getBooleanOr(TravelConstants.TRAVEL_TAG, false);
 

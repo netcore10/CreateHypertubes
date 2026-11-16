@@ -1,5 +1,7 @@
 package com.pedrorok.hypertube.ponder.scenes;
 
+import net.minecraft.world.item.ItemStack;
+
 import com.pedrorok.hypertube.blocks.HyperJunctionBlock;
 import com.pedrorok.hypertube.blocks.blockentities.HyperJunctionBlockEntity;
 import com.pedrorok.hypertube.blocks.blockentities.parent.ActionTubeBlockEntity;
@@ -94,9 +96,9 @@ public class SplitterScenes {
                 .text("Right Click it with a Wrench to cycle through the Splitter modes.");
         scene.idle(15);
         scene.overlay()
-                .showControls(splitterPos.getCenter().add(0, 1.1, -1), Pointing.RIGHT, 30)
+                .showControls(Vec3.atCenterOf(splitterPos).add(0, 1.1, -1), Pointing.RIGHT, 30)
                 .rightClick()
-                .withItem(AllItems.WRENCH.asStack());
+                .withItem(new ItemStack(AllItems.WRENCH));
         scene.idle(10);
         setMode(scene, splitterPos, JunctionMode.FORCED_CONTINUE);
         scene.effects().indicateSuccess(splitterPos);
@@ -116,9 +118,9 @@ public class SplitterScenes {
 
         // FORCED CENTER MODE
         scene.overlay()
-                .showControls(splitterPos.getCenter().add(0, 1.1, -1), Pointing.RIGHT, 30)
+                .showControls(Vec3.atCenterOf(splitterPos).add(0, 1.1, -1), Pointing.RIGHT, 30)
                 .rightClick()
-                .withItem(AllItems.WRENCH.asStack());
+                .withItem(new ItemStack(AllItems.WRENCH));
         scene.idle(10);
         setMode(scene, splitterPos, JunctionMode.FORCED_CENTER);
         scene.effects().indicateSuccess(splitterPos);
@@ -142,7 +144,7 @@ public class SplitterScenes {
 
         // REDSTONE
         scene.overlay()
-                .showControls(splitterPos.getCenter().add(0.5, -0.5, 0), Pointing.UP, 40)
+                .showControls(Vec3.atCenterOf(splitterPos).add(0.5, -0.5, 0), Pointing.UP, 40)
                 .rightClick()
                 .withItem(redstoneDetectorItem.getDefaultInstance());
         scene.idle(10);

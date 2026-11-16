@@ -1,5 +1,7 @@
 package com.pedrorok.hypertube.ponder.scenes;
 
+import net.minecraft.world.item.ItemStack;
+
 import com.jcraft.jorbis.Block;
 import com.pedrorok.hypertube.blocks.HyperEntranceBlock;
 import com.pedrorok.hypertube.blocks.blockentities.HyperEntranceBlockEntity;
@@ -121,9 +123,9 @@ public class EntranceScenes {
         scene.idle(10);
 
         scene.overlay()
-                .showControls(entrancePos.getCenter().add(0,1,0), Pointing.DOWN, 40)
+                .showControls(Vec3.atCenterOf(entrancePos).add(0,1,0), Pointing.DOWN, 40)
                 .rightClick()
-                .withItem(AllItems.WRENCH.asStack());
+                .withItem(new ItemStack(AllItems.WRENCH));
         changeOpenCloseEntrance(scene, entrancePos, false);
         scene.effects().indicateSuccess(entrancePos);
         scene.idle(50);

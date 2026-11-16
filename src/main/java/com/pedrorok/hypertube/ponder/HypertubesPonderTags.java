@@ -1,9 +1,10 @@
 package com.pedrorok.hypertube.ponder;
 
+import net.neoforged.neoforge.registries.DeferredHolder;
+
 import com.pedrorok.hypertube.HypertubeMod;
 import com.pedrorok.hypertube.registry.ModBlocks;
 import com.pedrorok.hypertube.registry.ModItems;
-import com.tterrag.registrate.util.entry.RegistryEntry;
 import com.zurrtum.create.catnip.registry.RegisteredObjectsHelper;
 import com.zurrtum.create.client.ponder.api.registration.PonderTagRegistrationHelper;
 import net.minecraft.resources.Identifier;
@@ -25,7 +26,7 @@ public class HypertubesPonderTags {
 
     public static void register(PonderTagRegistrationHelper<Identifier> helper) {
 
-        PonderTagRegistrationHelper<RegistryEntry<?, ?>> HELPER = helper.withKeyFunction(RegistryEntry::getId);
+        PonderTagRegistrationHelper<DeferredHolder<?, ?>> HELPER = helper.withKeyFunction(DeferredHolder::getId);
 
         PonderTagRegistrationHelper<ItemLike> itemHelper = helper.withKeyFunction(
                 RegisteredObjectsHelper::getKeyOrThrow);

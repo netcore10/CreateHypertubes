@@ -85,7 +85,7 @@ public interface ITubeConnectionEntity {
             SimpleConnection fromPos = connection.getFromPos();
             SimpleConnection toPos = connection.getToPos();
             int tubeSegments = connection.getTubeSegments();
-            int detailLevel = toPos != null ? (int) Math.max(3, fromPos.pos().getCenter().distanceTo(toPos.pos().getCenter())) : 0;
+            int detailLevel = toPos != null ? (int) Math.max(3, Vec3.atCenterOf(fromPos.pos()).distanceTo(Vec3.atCenterOf(toPos.pos()))) : 0;
             return new BezierConnection(fromPos, toPos, tubeSegments, detailLevel);
         } catch (Exception ignored) {
             try {

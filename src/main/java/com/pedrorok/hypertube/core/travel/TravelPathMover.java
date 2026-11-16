@@ -159,7 +159,7 @@ public class TravelPathMover {
 
         Vec3 newPos = posDir.getFirst();
 
-        entity.moveTo(newPos.x, newPos.y, newPos.z);
+        entity.snapTo(newPos.x, newPos.y, newPos.z);
 
         entity.resetFallDistance();
 

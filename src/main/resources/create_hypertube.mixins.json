@@ -3,7 +3,7 @@
   "minVersion": "0.8",
   "package": "com.pedrorok.hypertube.mixin.core",
   "refmap": "create_hypertube.refmap.json",
-  "compatibilityLevel": "JAVA_8",
+  "compatibilityLevel": "JAVA_21",
   "mixins": [
     "EntityTravelingMixin",
     "IPlayerExtensionMixin",
@@ -15,8 +15,8 @@
   "client": [
     "CameraAccessorMixin",
     "CameraMixin",
+    "CapeLayerMixin",
     "LocalPlayerMixin",
-    "PlayerModelAccessor",
     "PlayerModelMixin"
   ],
   "injectors": {

@@ -1,6 +1,7 @@
 package com.pedrorok.hypertube.core.travel.client;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import com.pedrorok.hypertube.blocks.HyperJunctionBlock;
 import com.pedrorok.hypertube.blocks.blockentities.HyperJunctionBlockEntity;
 import com.pedrorok.hypertube.core.camera.DetachedCameraController;
@@ -16,7 +17,8 @@ import com.pedrorok.hypertube.utils.RenderUtils;
 import com.pedrorok.hypertube.utils.TubePulseRenderer;
 import com.zurrtum.create.catnip.math.AngleHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import org.joml.Matrix3x2fStack;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -45,7 +47,7 @@ public class ClientTravelPathRender {
         if (!endJunction) return;
         Level level = Minecraft.getInstance().player.level();
         tryCacheDirectionTuple(level, data, MoveDirection.RIGHT);
-        PacketDistributor.sendToServer(new MoveDirectionPacket(lastValidMoveDir));
+        ClientPacketDistributor.sendToServer(new MoveDirectionPacket(lastValidMoveDir));
         isTraveling = true;
         canChangeDirection = level.getBlockState(data.getLastBlockPos()).getValue(HyperJunctionBlock.JUNCTION_MODE).equals(JunctionMode.AUTOMATIC);
     }
@@ -81,7 +83,7 @@ public class ClientTravelPathRender {
         if (lastValidDirection == null) return;
 
         if (ClientKeyInputTracker.hasPlayerPressedAnyKey()) {
-            PacketDistributor.sendToServer(new MoveDirectionPacket(lastValidMoveDir));
+            ClientPacketDistributor.sendToServer(new MoveDirectionPacket(lastValidMoveDir));
         }
 
         if (player.tickCount % 10 != 0)
@@ -104,7 +106,7 @@ public class ClientTravelPathRender {
         TubePulseRenderer.start(pos, connection, inverted, 8, 0.08f, 0.6f, canChangeDirection ? ModColors.GREEN : ModColors.ORANGE, 5, false);
     }
 
-    public static void renderOverlay(GuiGraphics guiGraphics, float partialTick) {
+    public static void renderOverlay(GuiGraphicsExtractor guiGraphics, float partialTick) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.gameMode == null) return;
         if (mc.options.hideGui || mc.gameMode.getPlayerMode() == GameType.SPECTATOR)
@@ -122,9 +124,9 @@ public class ClientTravelPathRender {
         if (!player.getPersistentData().getBooleanOr(TravelConstants.TRAVEL_TAG, false)) return;
         if (lastValidDirection == null) return;
 
-        PoseStack poseStack = guiGraphics.pose();
-        poseStack.pushPose();
-        poseStack.translate((double) guiGraphics.guiWidth() / 2 - 91, guiGraphics.guiHeight() / 1.5, 0);
+        Matrix3x2fStack poseStack = guiGraphics.pose();
+        poseStack.pushMatrix();
+        poseStack.translate((float) guiGraphics.guiWidth() / 2 - 91, guiGraphics.guiHeight() / 1.5f);
 
         // Direction
 
@@ -137,10 +139,10 @@ public class ClientTravelPathRender {
 
         float snappedAngle = (snapSize * Math.round(diff / snapSize)) % 360f;
 
-        poseStack.translate(91, -9, 0);
-        poseStack.scale(0.925f, 0.925f, 1);
-        RenderUtils.directionArrow(poseStack, 0, 0, 1, canChangeDirection ? 0xffffff : ModColors.ORANGE, snappedAngle);
+        poseStack.translate(91, -9);
+        poseStack.scale(0.925f, 0.925f);
+        RenderUtils.directionArrow(guiGraphics, 0, 0, 1, canChangeDirection ? 0xffffff : ModColors.ORANGE, snappedAngle);
 
-        poseStack.popPose();
+        poseStack.popMatrix();
     }
 }

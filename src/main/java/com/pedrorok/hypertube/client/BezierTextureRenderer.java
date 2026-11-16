@@ -145,7 +145,7 @@ public class BezierTextureRenderer {
                 );
                 float uEnd_nextJ = uStart + (corner_nextJ_movement.dot(tangent) / TILING_UNIT);
 
-                boolean invertNormal = Minecraft.getInstance().screen instanceof PonderUI;
+                boolean invertNormal = Minecraft.getInstance().gui.screen() instanceof PonderUI;
                 if (invertNormal) {
                     lightCurrent = 0x00F000F0;
                     lightNext = 0x00F000F0;

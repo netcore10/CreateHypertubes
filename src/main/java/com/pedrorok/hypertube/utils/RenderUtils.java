@@ -1,11 +1,18 @@
 package com.pedrorok.hypertube.utils;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.vertex.*;
 import com.zurrtum.create.client.catnip.render.SuperByteBuffer;
 import com.zurrtum.create.client.ponder.enums.PonderConfig;
 import com.zurrtum.create.client.ponder.enums.PonderGuiTextures;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.render.TextureSetup;
+import net.minecraft.client.renderer.state.gui.GuiElementRenderState;
+import net.minecraft.client.renderer.RenderPipelines;
+import org.joml.Matrix3x2f;
+import org.joml.Matrix3x2fStack;
+import org.jetbrains.annotations.Nullable;
 import net.minecraft.core.Direction;
 import org.joml.Matrix4f;
 
@@ -44,45 +51,50 @@ public class RenderUtils {
         }
     }
 
-    public static void directionArrow(PoseStack ms, float centerX, float centerY, float alpha, int color, float snappedAngle) {
-        //RenderSystem.enableTexture();
-        PonderGuiTextures.PLACEMENT_INDICATOR_SHEET.bind();
-        RenderSystem.enableDepthTest();
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-
-        ms.pushPose();
-        ms.translate(centerX, centerY, 50);
-        float scale = PonderConfig.client().indicatorScale.get()
-                .floatValue() * .75f;
-        ms.scale(scale, scale, 1);
-        ms.scale(12, 12, 1);
+    /**
+     * Create's placement direction arrow, tinted. 26.2 draws GUI through render states, so this mirrors Create Fly's
+     * PlacementClient#textured (which is white only) with the original tint.
+     */
+    public static void directionArrow(GuiGraphicsExtractor graphics, float centerX, float centerY, float alpha, int color, float snappedAngle) {
+        Matrix3x2fStack ms = graphics.pose();
+        ms.pushMatrix();
+        ms.translate(centerX, centerY);
+        float scale = PonderConfig.client().indicatorScale.get().floatValue() * .75f;
+        ms.scale(scale, scale);
+        ms.scale(12, 12);
 
         float index = snappedAngle / 22.5f;
         float tex_size = 16f / 256f;
 
-        float tx = 0;
-        float ty = index * tex_size;
-        float tw = 1f;
-        float th = tex_size;
+        TextureSetup texture = PonderGuiTextures.PLACEMENT_INDICATOR_SHEET.bind();
+        int size = (int) (36 * scale);
+        Matrix3x2f pose = new Matrix3x2f(ms);
+        graphics.submitGuiElementRenderState(new TintedArrowRenderState(pose, alpha, color, 0, index * tex_size, 1f, tex_size,
+                texture, new ScreenRectangle(0, 0, size, size).transformMaxBounds(pose)));
+        ms.popMatrix();
+    }
 
-        Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder buffer = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+    private record TintedArrowRenderState(Matrix3x2f pose, float alpha, int color, float tx, float ty, float tw, float th,
+                                          TextureSetup textureSetup, ScreenRectangle bounds) implements GuiElementRenderState {
+        @Override
+        public RenderPipeline pipeline() {
+            return RenderPipelines.GUI_TEXTURED;
+        }
 
-        float r = ((color >> 16) & 0xFF) / 255f;
-        float g = ((color >> 8) & 0xFF) / 255f;
-        float b = (color & 0xFF) / 255f;
+        @Override
+        public void buildVertices(VertexConsumer consumer) {
+            float r = ((color >> 16) & 0xFF) / 255f;
+            float g = ((color >> 8) & 0xFF) / 255f;
+            float b = (color & 0xFF) / 255f;
+            consumer.addVertexWith2DPose(pose, -1, -1).setColor(r, g, b, alpha).setUv(tx, ty);
+            consumer.addVertexWith2DPose(pose, -1, 1).setColor(r, g, b, alpha).setUv(tx, ty + th);
+            consumer.addVertexWith2DPose(pose, 1, 1).setColor(1f, g, b, alpha).setUv(tx + tw, ty + th);
+            consumer.addVertexWith2DPose(pose, 1, -1).setColor(r, g, b, alpha).setUv(tx + tw, ty);
+        }
 
-        Matrix4f mat = ms.last().pose();
-        buffer.addVertex(mat, -1, -1, 0).setColor(r, g, b, alpha).setUv(tx, ty);
-        buffer.addVertex(mat, -1, 1, 0).setColor(r, g, b, alpha).setUv(tx, ty + th);
-        buffer.addVertex(mat, 1, 1, 0).setColor(1f, g, b, alpha).setUv(tx + tw, ty + th);
-        buffer.addVertex(mat, 1, -1, 0).setColor(r, g, b, alpha).setUv(tx + tw, ty);
-
-        BufferUploader.drawWithShader(buffer.buildOrThrow());
-
-        RenderSystem.disableBlend();
-        ms.popPose();
+        @Override
+        public @Nullable ScreenRectangle scissorArea() {
+            return null;
+        }
     }
 }

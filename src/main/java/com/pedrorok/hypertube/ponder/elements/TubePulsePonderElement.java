@@ -1,6 +1,5 @@
 package com.pedrorok.hypertube.ponder.elements;
 
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.pedrorok.hypertube.core.connection.BezierConnection;
 import com.pedrorok.hypertube.utils.TubePulseEffect;
 import com.pedrorok.hypertube.utils.TubePulseRenderer;
@@ -8,12 +7,15 @@ import com.zurrtum.create.client.ponder.api.element.PonderSceneElement;
 import com.zurrtum.create.client.ponder.api.level.PonderLevel;
 import com.zurrtum.create.client.ponder.foundation.PonderScene;
 import com.zurrtum.create.client.ponder.foundation.element.PonderElementBase;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.client.renderer.RenderType;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
@@ -22,7 +24,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.OptionalDouble;
 
 /**
  * @author Rok, Pedro Lucas nmm. 29/07/2026
@@ -31,19 +32,8 @@ import java.util.OptionalDouble;
 @OnlyIn(Dist.CLIENT)
 public class TubePulsePonderElement extends PonderElementBase implements PonderSceneElement {
 
-    private static final RenderType LINES = RenderType.create("create_hypertube_ponder_lines",
-            DefaultVertexFormat.POSITION_COLOR_NORMAL,
-            VertexFormat.Mode.LINES,
-            1536,
-            RenderType.CompositeState.builder()
-                    .setShaderState(RenderStateShard.RENDERTYPE_LINES_SHADER)
-                    .setLineState(new RenderStateShard.LineStateShard(OptionalDouble.empty()))
-                    .setLayeringState(RenderStateShard.VIEW_OFFSET_Z_LAYERING)
-                    .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
-                    .setOutputState(RenderStateShard.MAIN_TARGET)
-                    .setWriteMaskState(RenderStateShard.COLOR_DEPTH_WRITE)
-                    .setCullState(RenderStateShard.NO_CULL)
-                    .createCompositeState(false));
+    // 1.21.1 used a custom translucent line type; 26.2 has it built in
+    private static final RenderType LINES = RenderTypes.linesTranslucent();
 
     private static final int RING_COUNT = 4;
     private static final float RING_SPACING = 0.08f;
@@ -104,23 +94,24 @@ public class TubePulsePonderElement extends PonderElementBase implements PonderS
     }
 
     @Override
-    public void renderFirst(PonderLevel level, MultiBufferSource buffer, GuiGraphics graphics, float partialTicks) {
+    public void renderFirst(BlockEntityRenderDispatcher blockEntities, ModelManager models, PonderLevel level, SubmitNodeCollector collector,
+                            CameraRenderState camera, PoseStack poseStack, float partialTicks) {
     }
 
     @Override
-    public void renderLayer(PonderLevel level, MultiBufferSource buffer, RenderType type, GuiGraphics graphics, float partialTicks) {
-    }
-
-    @Override
-    public void renderLast(PonderLevel level, MultiBufferSource buffer, GuiGraphics graphics, float partialTicks) {
+    public void renderLast(EntityRenderDispatcher entities, ItemModelResolver items, PonderLevel level, SubmitNodeCollector collector,
+                           CameraRenderState camera, PoseStack poseStack, float partialTicks) {
         if (effects.isEmpty()) return;
 
-        VertexConsumer consumer = buffer.getBuffer(LINES);
         Vec3 renderOrigin = new Vec3(origin.getX(), origin.getY(), origin.getZ());
-
-        for (TubePulseEffect effect : effects) {
-            if (effect.isFinished()) continue;
-            TubePulseRenderer.renderEffectAt(effect, graphics.pose(), consumer, renderOrigin, partialTicks);
-        }
+        List<TubePulseEffect> active = effects.stream().filter(effect -> !effect.isFinished()).toList();
+        collector.submitCustomGeometry(poseStack, LINES, (pose, consumer) -> {
+            PoseStack local = new PoseStack();
+            local.last().pose().set(pose.pose());
+            local.last().normal().set(pose.normal());
+            for (TubePulseEffect effect : active) {
+                TubePulseRenderer.renderEffectAt(effect, local, consumer, renderOrigin, partialTicks);
+            }
+        });
     }
 }

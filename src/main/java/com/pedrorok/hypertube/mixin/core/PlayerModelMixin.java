@@ -1,10 +1,9 @@
 package com.pedrorok.hypertube.mixin.core;
 
-import com.pedrorok.hypertube.core.travel.TravelConstants;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.PlayerModel;
-import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.client.model.player.PlayerModel;
+import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+import com.pedrorok.hypertube.events.ClientEvents;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -16,17 +15,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  */
 @Mixin(value = HumanoidModel.class, priority = 1001)
 public abstract class PlayerModelMixin {
-
-
-    @Inject(method = "setupAnim*", at = @At("RETURN"), cancellable = true, order = 1001)
-    private void createHypertube$onSetupAnim(LivingEntity entity, float limbSwing, float limbSwingAmount,
-                                             float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
-        if (!entity.getPersistentData().getBooleanOr(TravelConstants.TRAVEL_TAG, false)) return;
-
-
+    // 26.2: setupAnim takes the render state; the travelling entity is attached to it (see ModClientEvents)
+    @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/HumanoidRenderState;)V", at = @At("RETURN"), cancellable = true, order = 1001)
+    private void createHypertube$onSetupAnim(HumanoidRenderState state, CallbackInfo ci) {
+        if (state.getRenderData(ClientEvents.TRAVELLING_ENTITY) == null) return;
         HumanoidModel<?> model = (HumanoidModel<?>) (Object) this;
         boolean isPlayerModel = model instanceof PlayerModel;
-        PlayerModel<?> playerModel = isPlayerModel ? (PlayerModel<?>) model : null;
+        PlayerModel playerModel = isPlayerModel ? (PlayerModel) model : null;
 
         model.rightArm.xRot = 0;
         model.rightArm.yRot = 0;
@@ -83,9 +78,6 @@ public abstract class PlayerModelMixin {
             playerModel.jacket.zRot = 0;
 
 
-            PlayerModelAccessor accessor = (PlayerModelAccessor) playerModel;
-            ModelPart cloak = accessor.createHypertube$getCloak();
-            cloak.visible = false;
         }
         ci.cancel();
     }

@@ -187,7 +187,7 @@ public class DetachedCameraController {
         if ((mc.options.getCameraType().isFirstPerson() && ClientConfig.get().ALLOW_FPV_INSIDE_TUBE.get())
             || mc.isPaused()
             || !mc.isWindowActive()
-            || mc.screen != null)
+            || mc.gui.screen() != null)
             return;
 
         MouseHandler mouse = mc.mouseHandler;

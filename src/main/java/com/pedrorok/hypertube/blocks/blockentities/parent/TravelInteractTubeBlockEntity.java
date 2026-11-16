@@ -84,7 +84,7 @@ public abstract class TravelInteractTubeBlockEntity extends TubeBlockEntity {
         boolean isOpen = state.getValue(HyperEntranceBlock.OPEN);
 
         LocalPlayer player = Minecraft.getInstance().player;
-        Vec3 source = pos.getCenter();
+        Vec3 source = Vec3.atCenterOf(pos);
         Vec3 listener = player.position();
 
         Vec3 worldDirection = source.subtract(listener).normalize();

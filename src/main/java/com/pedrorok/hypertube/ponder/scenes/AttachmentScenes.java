@@ -1,5 +1,7 @@
 package com.pedrorok.hypertube.ponder.scenes;
 
+import net.minecraft.world.item.ItemStack;
+
 import com.pedrorok.hypertube.blocks.HyperAcceleratorBlock;
 import com.pedrorok.hypertube.blocks.blockentities.parent.ActionTubeBlockEntity;
 import com.pedrorok.hypertube.core.smarttube.ITubeAttachment;
@@ -162,7 +164,7 @@ public class AttachmentScenes {
         scene.idle(12);
         scene.overlay().showControls(Vec3.atCenterOf(entrancePos).add(0.8, -0.5, 0), Pointing.RIGHT, 20)
                 .rightClick()
-                .withItem(AllItems.WRENCH.asStack());
+                .withItem(new ItemStack(AllItems.WRENCH));
         scene.idle(12);
         removeAttachment(scene, acceleratorPos, Direction.NORTH);
         scene.idle(20);

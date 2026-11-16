@@ -96,13 +96,13 @@ public class HyperEntranceBlockEntity extends ActionTubeBlockEntity implements I
         }
 
         boolean isNotLocked = !getBlockState().getValue(HyperEntranceBlock.LOCKED);
-        LivingEntity nearbyEntity = getNearbyLivingEntities((ServerLevel) level, pos.getCenter());
+        LivingEntity nearbyEntity = getNearbyLivingEntities((ServerLevel) level, Vec3.atCenterOf(pos));
 
         boolean canOpen = nearbyEntity != null && (isNotLocked || nearbyEntity.isShiftKeyDown() || nearbyEntity.getPersistentData().getBooleanOr(TravelConstants.TRAVEL_TAG, false));
 
         if (isTubeClosed(canOpen, isOpen)) return;
 
-        LivingEntity inRangeEntity = getInRangeLivingEntities((ServerLevel) level, pos.getCenter(), state.getValue(HyperEntranceBlock.FACING));
+        LivingEntity inRangeEntity = getInRangeLivingEntities((ServerLevel) level, Vec3.atCenterOf(pos), state.getValue(HyperEntranceBlock.FACING));
         if (inRangeEntity == null) return;
 
         if (isNotLocked && inRangeEntity.isShiftKeyDown() && !inRangeEntity.getPersistentData().getBooleanOr(TravelConstants.TRAVEL_TAG, false)) {
@@ -111,7 +111,7 @@ public class HyperEntranceBlockEntity extends ActionTubeBlockEntity implements I
 
         boolean hasStartedTravel = TravelManager.tryStartTravel(inRangeEntity, this, state.getValue(HyperEntranceBlock.FACING), TubeUtils.calculateTravelSpeed(actualSpeed));
         if (!hasStartedTravel) return;
-        TubeSoundManager.playTubeSuctionSound(inRangeEntity, getBlockPos().getCenter());
+        TubeSoundManager.playTubeSuctionSound(inRangeEntity, Vec3.atCenterOf(getBlockPos()));
     }
 
     @OnlyIn(Dist.CLIENT)

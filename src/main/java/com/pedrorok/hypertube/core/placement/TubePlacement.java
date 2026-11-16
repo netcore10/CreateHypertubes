@@ -16,9 +16,8 @@ import com.pedrorok.hypertube.utils.TubeUtils;
 import com.zurrtum.create.client.content.trains.track.TrackBlockOutline;
 import com.zurrtum.create.catnip.animation.LerpedFloat;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -243,7 +242,7 @@ public class TubePlacement {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static void drawCustomBlockSelection(PoseStack ms, MultiBufferSource buffer, Vec3 camera) {
+    public static void drawCustomBlockSelection(PoseStack ms, SubmitNodeCollector collector, Vec3 camera) {
         ItemStack mainHandItem = Minecraft.getInstance().player.getMainHandItem();
         if (!mainHandItem.is(ModBlocks.HYPERTUBE.asItem())) return;
         if (!mainHandItem.hasFoil()) return;
@@ -255,10 +254,11 @@ public class TubePlacement {
         if (!(blockState.getBlock() instanceof HypertubeBlock)) return;
         HypertubeBlock block = (HypertubeBlock) blockState.getBlock();
 
-        VertexConsumer vb = buffer.getBuffer(RenderType.lines());
+        // Create's renderShape colours: white (can place), red (can't)
+        int color = canPlace ? TrackBlockOutline.WHITE_COLOR : TrackBlockOutline.RED_COLOR;
         ms.pushPose();
         ms.translate(connection.pos().getX() - camera.x, connection.pos().getY() - camera.y, connection.pos().getZ() - camera.z);
-        TrackBlockOutline.renderShape(block.getShape(blockState), ms, vb, canPlace);
+        TrackBlockOutline.submitShape(block.getShape(blockState), ms, collector, color, mc.getWindow().getAppropriateLineWidth());
         ms.popPose();
     }
 }

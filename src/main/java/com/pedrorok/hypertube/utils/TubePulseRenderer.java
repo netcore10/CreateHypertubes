@@ -4,11 +4,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.pedrorok.hypertube.core.connection.BezierConnection;
 import com.pedrorok.hypertube.core.connection.SimpleConnection;
-import net.minecraft.client.Camera;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
@@ -94,23 +92,27 @@ public final class TubePulseRenderer {
 
     // Event
 
-    public static void onRenderLevelStage(PoseStack poseStack, DeltaTracker deltaTracker, Camera camera) {
+    // 26.2: drawn through the frame's SubmitNodeCollector instead of the shared buffer source
+    public static void onRenderLevelStage(PoseStack poseStack, SubmitNodeCollector collector, float deltaTime, Vec3 camPos) {
         if (ACTIVE_EFFECTS.isEmpty()) return;
 
-        float deltaTime = deltaTracker.getRealtimeDeltaTicks();
-
-        MultiBufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-        VertexConsumer builder = bufferSource.getBuffer(RenderType.lines());
-
-        Vec3 camPos = camera.getPosition();
-
+        List<TubePulseEffect> toRender = new java.util.ArrayList<>();
         for (TubePulseEffect effect : ACTIVE_EFFECTS) {
             effect.tick(deltaTime);
             if (effect.isFinished()) continue;
-            renderEffect(effect, poseStack, builder, camPos);
+            toRender.add(effect);
         }
-
         ACTIVE_EFFECTS.removeIf(TubePulseEffect::isFinished);
+        if (toRender.isEmpty()) return;
+
+        collector.submitCustomGeometry(poseStack, RenderTypes.lines(), (pose, builder) -> {
+            PoseStack local = new PoseStack();
+            local.last().pose().set(pose.pose());
+            local.last().normal().set(pose.normal());
+            for (TubePulseEffect effect : toRender) {
+                renderEffect(effect, local, builder, camPos);
+            }
+        });
     }
 
 
@@ -244,10 +246,12 @@ public final class TubePulseRenderer {
 
         builder.addVertex(pose, x1, y1, z1)
                 .setColor(r, g, b, opacity)
-                .setNormal(normal.x, normal.y, normal.z);
+                .setNormal(normal.x, normal.y, normal.z)
+                .setLineWidth(Minecraft.getInstance().getWindow().getAppropriateLineWidth());
         builder.addVertex(pose, x2, y2, z2)
                 .setColor(r, g, b, opacity)
-                .setNormal(normal.x, normal.y, normal.z);
+                .setNormal(normal.x, normal.y, normal.z)
+                .setLineWidth(Minecraft.getInstance().getWindow().getAppropriateLineWidth());
     }
 
     private record RingTransform(Vec3 center, Vector3f perpA, Vector3f perpB) {

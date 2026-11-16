@@ -1,5 +1,7 @@
 package com.pedrorok.hypertube.core.escape;
 
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+
 import com.google.common.base.Strings;
 import com.pedrorok.hypertube.core.travel.TravelConstants;
 import com.pedrorok.hypertube.core.travel.client.ClientTravelPathMover;
@@ -10,7 +12,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -62,7 +64,7 @@ public class TubeEscapeHandler {
         }
     }
 
-    public static void onRenderGuiOverlay(GuiGraphics guiGraphics, DeltaTracker partialTick) {
+    public static void onRenderGuiOverlay(GuiGraphicsExtractor guiGraphics, DeltaTracker partialTick) {
 
         float partialTicks = partialTick.getGameTimeDeltaPartialTick(true);
         float progress = holdKeyProgress.getValue(partialTicks);
@@ -83,7 +85,7 @@ public class TubeEscapeHandler {
         int x = (screenWidth - textWidth) / 2;
         int y = screenHeight - 59;
 
-        guiGraphics.drawString(font, bar, x, y, 0xFFFFFFFF, true);
+        guiGraphics.text(font, bar, x, y, 0xFFFFFFFF, true);
     }
 
     private static Component makeProgressBar(float progress) {
@@ -108,7 +110,7 @@ public class TubeEscapeHandler {
     }
 
     private static void sendPacketToServer() {
-        PacketDistributor.sendToServer(new EscapeTubePacket());
+        ClientPacketDistributor.sendToServer(new EscapeTubePacket());
         ClientTravelPathMover.stopMoving(Minecraft.getInstance().player.getId());
     }
 }

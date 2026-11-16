@@ -1,7 +1,7 @@
 package com.pedrorok.hypertube.events;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.pedrorok.hypertube.HypertubeMod;
 import com.pedrorok.hypertube.client.TubePathOutline;
 import com.pedrorok.hypertube.core.camera.CameraSmoothing;
 import com.pedrorok.hypertube.core.camera.DetachedCameraController;
@@ -16,14 +16,15 @@ import com.pedrorok.hypertube.core.travel.client.ClientTravelPathRender;
 import com.pedrorok.hypertube.utils.TubePulseRenderer;
 import com.zurrtum.create.client.catnip.animation.AnimationTickHolder;
 import com.zurrtum.create.client.catnip.placement.PlacementClient;
-import net.createmod.catnip.render.DefaultSuperRenderTypeBuffer;
-import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.ExtractBlockOutlineRenderStateEvent;
+import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
+import net.minecraft.util.context.ContextKey;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
@@ -48,7 +49,7 @@ public class ClientEvents {
     }
 
     @SubscribeEvent
-    public static void onRenderHighlight(RenderHighlightEvent.Block event) {
+    public static void onRenderHighlight(ExtractBlockOutlineRenderStateEvent event) {
         TubePathOutline.renderTubeOutline(event);
     }
 
@@ -81,40 +82,41 @@ public class ClientEvents {
     @SubscribeEvent
     public static void afterRenderOverlayLayer(RenderGuiLayerEvent.Post event) {
         if (event.getName() == VanillaGuiLayers.CROSSHAIR) {
-            ClientTravelPathRender.renderOverlay(event.getGuiGraphics(), AnimationTickHolder.getPartialTicksUI());
+            ClientTravelPathRender.renderOverlay(event.getGuiGraphics(), AnimationTickHolder.getPartialTicksUI(event.getPartialTick()));
         }
         if (event.getName() == VanillaGuiLayers.HOTBAR) {
             TubeEscapeHandler.onRenderGuiOverlay(event.getGuiGraphics(), event.getPartialTick());
         }
     }
 
+    // 26.2: world overlays (placement preview, tube pulses) are submitted with the frame's custom geometry
     @SubscribeEvent
-    public static void onRenderWorld(RenderLevelStageEvent event) {
-        if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
-            PoseStack ms = event.getPoseStack();
-            ms.pushPose();
-            SuperRenderTypeBuffer buffer = DefaultSuperRenderTypeBuffer.getInstance();
-            Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+    public static void onRenderWorld(SubmitCustomGeometryEvent event) {
+        PoseStack ms = event.getPoseStack();
+        Vec3 camera = event.getLevelRenderState().cameraRenderState.pos;
 
-            TubePlacement.drawCustomBlockSelection(ms, buffer, camera);
+        ms.pushPose();
+        TubePlacement.drawCustomBlockSelection(ms, event.getSubmitNodeCollector(), camera);
+        ms.popPose();
 
-            buffer.draw();
-            RenderSystem.enableCull();
-            ms.popPose();
-        }
-        if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) {
-            TubePulseRenderer.onRenderLevelStage(event.getPoseStack(), event.getPartialTick(), event.getCamera());
-        }
+        TubePulseRenderer.onRenderLevelStage(ms, event.getSubmitNodeCollector(),
+                Minecraft.getInstance().getDeltaTracker().getRealtimeDeltaTicks(), camera);
     }
 
     protected static boolean isGameActive() {
         return !(Minecraft.getInstance().level == null || Minecraft.getInstance().player == null);
     }
 
+    /**
+     * 26.2 renders living entities from a render state, not the entity. Hypertube's travel pose needs the entity (persistent
+     * data, path data), so the entity is attached to its render state while it travels.
+     */
+    public static final ContextKey<LivingEntity> TRAVELLING_ENTITY = new ContextKey<>(HypertubeMod.of("travelling_entity"));
+
     @SubscribeEvent
-    public static void onRenderEntity(RenderLivingEvent.Pre event) {
-        LivingEntity entity = event.getEntity();
-        if (!entity.getPersistentData().getBooleanOr(TravelConstants.TRAVEL_TAG, false)) return;
+    public static void onRenderEntity(RenderLivingEvent.Pre<?, ?, ?> event) {
+        LivingEntity entity = event.getRenderState().getRenderData(TRAVELLING_ENTITY);
+        if (entity == null || !entity.getPersistentData().getBooleanOr(TravelConstants.TRAVEL_TAG, false)) return;
         PoseStack poseStack = event.getPoseStack();
         TravellerEntity travellerEntity = TravelConstants.Client.ENTITIES_RENDER
                 .get(entity.getType());
@@ -125,9 +127,9 @@ public class ClientEvents {
     }
 
     @SubscribeEvent
-    public static void onRenderEntityPost(RenderLivingEvent.Post event) {
-        LivingEntity entity = event.getEntity();
-        if (!entity.getPersistentData().getBooleanOr(TravelConstants.TRAVEL_TAG, false)) return;
+    public static void onRenderEntityPost(RenderLivingEvent.Post<?, ?, ?> event) {
+        LivingEntity entity = event.getRenderState().getRenderData(TRAVELLING_ENTITY);
+        if (entity == null || !entity.getPersistentData().getBooleanOr(TravelConstants.TRAVEL_TAG, false)) return;
         event.getPoseStack().popPose();
     }
 }
