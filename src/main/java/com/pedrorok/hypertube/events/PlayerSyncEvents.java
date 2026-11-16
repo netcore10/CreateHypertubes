@@ -14,7 +14,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
  * @author Rok, Pedro Lucas nmm. Created on 24/05/2025
  * @project Create Hypertube
  */
-@EventBusSubscriber(modid = HypertubeMod.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
+@EventBusSubscriber(modid = HypertubeMod.MOD_ID)
 public class PlayerSyncEvents {
 
     @SubscribeEvent

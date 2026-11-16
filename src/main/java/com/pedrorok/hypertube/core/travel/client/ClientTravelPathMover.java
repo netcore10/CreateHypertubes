@@ -2,8 +2,6 @@ package com.pedrorok.hypertube.core.travel.client;
 
 import com.pedrorok.hypertube.HypertubeMod;
 import com.pedrorok.hypertube.core.camera.DetachedPlayerDirController;
-import com.pedrorok.hypertube.core.compat.Mods;
-import com.pedrorok.hypertube.core.compat.sable.SableCompat;
 import com.pedrorok.hypertube.core.connection.interfaces.ITubeActionPoint;
 import com.pedrorok.hypertube.network.packets.ActionPointReachPacket;
 import com.pedrorok.hypertube.network.packets.FinishPathPacket;
@@ -44,7 +42,6 @@ public class ClientTravelPathMover {
         boolean isPlayer = mc.player.getId() == packet.entityId();
         Entity entity = mc.level.getEntity(packet.entityId());
 
-        Mods.SABLE.executeIfInstalled(() -> () -> SableCompat.stickToSubLevel(entity, packet.actionPoints().iterator().next().getCenter()));
         boolean junctionEnd = packet.isJunctionEnd();
         PathData pathData = new PathData(entity,
                 packet.pathPoints(),
@@ -95,7 +92,6 @@ public class ClientTravelPathMover {
 
             if (data.isDone() && !data.isJunctionEnd()) {
                 PacketDistributor.sendToServer(new FinishPathPacket(entity.getUUID()));
-                Mods.SABLE.executeIfInstalled(() -> () -> SableCompat.stickToSubLevel(entity, null));
                 it.remove();
                 HypertubeMod.LOGGER.debug("Entity {} has finished its path, removing from active paths", id);
                 continue;
@@ -193,7 +189,7 @@ public class ClientTravelPathMover {
             Vec3 start = entity.position();
             if (!points.isEmpty()) {
                 Vec3 entranceLogical = route[1];
-                Vec3 entranceOffset = Mods.SABLE.executeIfInstalled(() -> (pos) -> SableCompat.Client.transformToSubLevel(entranceLogical, pos), entity.position()).subtract(entranceLogical);
+                Vec3 entranceOffset = entity.position().subtract(entranceLogical);
 
                 start = entranceLogical.add(entranceOffset);
                 if (start.distanceToSqr(entranceLogical) > pathLength * pathLength) {
@@ -314,13 +310,13 @@ public class ClientTravelPathMover {
         }
 
         public Vec3 getWorldDirection() {
-            return Mods.SABLE.executeIfInstalled(() -> (dir) -> SableCompat.Client.transformToWorld(currentLogicalPos, dir).getSecond(), getCurrentDirection());
+            return getCurrentDirection();
         }
 
         public Vec3 getRenderPosition(float partialTicks) {
             double renderDistance = Mth.lerp(Mth.clamp(partialTicks, 0f, 1f), previousTraveled, traveled);
             Vec3 logicalRender = pointAt(renderDistance);
-            return Mods.SABLE.executeIfInstalled(() -> (pos) -> SableCompat.Client.transformToWorld(pos, true), logicalRender);
+            return logicalRender;
         }
 
         public BlockPos getLastBlockPos() {

@@ -3,13 +3,12 @@ package com.pedrorok.hypertube.network.packets;
 import com.pedrorok.hypertube.HypertubeMod;
 import com.pedrorok.hypertube.core.travel.TravelConstants;
 import com.pedrorok.hypertube.core.travel.client.ClientTravelPathMover;
-import com.simibubi.create.foundation.networking.ISyncPersistentData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
@@ -63,14 +62,11 @@ public record SyncPersistentDataPacket(int entityId, CompoundTag readData) imple
         try {
             Entity entityByID = Minecraft.getInstance().level.getEntity(packet.entityId);
             CompoundTag data = entityByID.getPersistentData();
-            new HashSet<>(data.getAllKeys()).forEach(data::remove);
+            new HashSet<>(data.keySet()).forEach(data::remove);
             data.merge(packet.readData);
-            if (!data.getBoolean(TravelConstants.TRAVEL_TAG)) {
+            if (!data.getBooleanOr(TravelConstants.TRAVEL_TAG, false)) {
                 ClientTravelPathMover.stopMoving(packet.entityId);
             }
-            if (!(entityByID instanceof ISyncPersistentData))
-                return;
-            ((ISyncPersistentData) entityByID).onPersistentDataUpdated();
         } catch (Exception e) {
             HypertubeMod.LOGGER.error("Failed to handle SyncPersistentDataPacket for entity ID: {}", packet.entityId, e);
         }

@@ -5,8 +5,8 @@ import com.pedrorok.hypertube.blocks.blockentities.parent.ActionTubeBlockEntity;
 import com.pedrorok.hypertube.core.connection.interfaces.ITubeActionPoint;
 import com.pedrorok.hypertube.registry.ModItems;
 import com.pedrorok.hypertube.registry.ModPartialModels;
-import com.simibubi.create.content.kinetics.simpleRelays.ICogWheel;
-import dev.engine_room.flywheel.lib.model.baked.PartialModel;
+import com.zurrtum.create.content.kinetics.simpleRelays.ICogWheel;
+import com.zurrtum.create.client.flywheel.lib.model.baked.PartialModel;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
@@ -41,7 +41,7 @@ public class TubeScannerAttachment implements ITubeAttachment {
         return ((entity, mover, pos) -> {
             var level = entity.level();
 
-            if (level.isClientSide) return;
+            if (level.isClientSide()) return;
 
             BlockState currentState = level.getBlockState(pos);
 
@@ -61,6 +61,6 @@ public class TubeScannerAttachment implements ITubeAttachment {
 
     @Override
     public ItemStack getItemStack() {
-        return ModItems.TUBE_SCANNER.asStack();
+        return ModItems.TUBE_SCANNER.toStack();
     }
 }

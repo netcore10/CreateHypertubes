@@ -8,8 +8,10 @@ import com.pedrorok.hypertube.core.connection.TubeConnectionException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.util.Tuple;
+import com.pedrorok.hypertube.utils.Tuple;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
@@ -24,7 +26,11 @@ import java.util.List;
 public interface ITubeConnectionEntity {
 
 
-    default IConnection getConnection(CompoundTag tag, String key) {
+    // 26.2: block entities save through ValueInput/ValueOutput; each connection is still stored as the same NBT compound
+    default IConnection getConnection(ValueInput input, String key) {
+        CompoundTag tag = new CompoundTag();
+        input.read(key, CompoundTag.CODEC).ifPresent(t -> tag.put(key, t));
+        if (!tag.contains(key)) return null;
         try {
             return BezierConnection.CODEC.parse(NbtOps.INSTANCE, tag.get(key))
                     .getOrThrow();
@@ -34,24 +40,28 @@ public interface ITubeConnectionEntity {
         }
     }
 
-    default void writeConnection(CompoundTag tag, Tuple<@Nullable IConnection, String>... connections) {
+    default void writeConnection(ValueOutput output, Tuple<@Nullable IConnection, String>... connections) {
         for (Tuple<@Nullable IConnection, String> connection : connections) {
-            writeConnection(tag, connection.getA(), connection.getB());
+            writeConnection(output, connection.getA(), connection.getB());
         }
     }
 
-    private void writeConnection(CompoundTag tag, IConnection connection, String key) {
+    private void writeConnection(ValueOutput output, IConnection connection, String key) {
         if (connection instanceof SimpleConnection simpleConnection) {
-            tag.put(key, SimpleConnection.CODEC.encodeStart(NbtOps.INSTANCE, simpleConnection)
+            output.store(key, CompoundTag.CODEC, (CompoundTag) SimpleConnection.CODEC.encodeStart(NbtOps.INSTANCE, simpleConnection)
                     .getOrThrow());
-        } else {
-            tag.put(key, BezierConnection.CODEC.encodeStart(NbtOps.INSTANCE, (BezierConnection) connection)
+        } else if (connection != null) {
+            output.store(key, CompoundTag.CODEC, (CompoundTag) BezierConnection.CODEC.encodeStart(NbtOps.INSTANCE, (BezierConnection) connection)
                     .getOrThrow());
         }
     }
 
-    default IConnection getConnectionRelative(CompoundTag tag, String key, BlockPos referencePos) {
-        boolean isNewFormat = tag.contains(key + "_version");
+    /** @return null if nothing is stored under key */
+    default IConnection getConnectionRelative(ValueInput input, String key, BlockPos referencePos) {
+        CompoundTag tag = new CompoundTag();
+        input.read(key, CompoundTag.CODEC).ifPresent(t -> tag.put(key, t));
+        if (!tag.contains(key)) return null;
+        boolean isNewFormat = input.getInt(key + "_version").isPresent();
 
         try {
             BezierConnection connection = BezierConnection.CODEC.parse(NbtOps.INSTANCE, tag.get(key))
@@ -96,14 +106,14 @@ public interface ITubeConnectionEntity {
         }
     }
 
-    default void writeConnectionRelative(CompoundTag tag, BlockPos referencePos, Tuple<IConnection, String>... connections) {
+    default void writeConnectionRelative(ValueOutput output, BlockPos referencePos, Tuple<IConnection, String>... connections) {
         for (Tuple<IConnection, String> connection : connections) {
-            writeConnectionRelativeSingle(tag, referencePos, connection.getA(), connection.getB());
-            tag.putInt(connection.getB() + "_version", 1);
+            writeConnectionRelativeSingle(output, referencePos, connection.getA(), connection.getB());
+            output.putInt(connection.getB() + "_version", 1);
         }
     }
 
-    default void writeConnectionRelativeSingle(CompoundTag tag, BlockPos referencePos, IConnection connection, String key) {
+    default void writeConnectionRelativeSingle(ValueOutput output, BlockPos referencePos, IConnection connection, String key) {
         if (connection instanceof SimpleConnection(BlockPos pos, Direction direction, float offset)) {
             // Convert absolute position to relative
             SimpleConnection relative = new SimpleConnection(
@@ -111,7 +121,7 @@ public interface ITubeConnectionEntity {
                     direction,
                     offset
             );
-            tag.put(key, SimpleConnection.CODEC.encodeStart(NbtOps.INSTANCE, relative)
+            output.store(key, CompoundTag.CODEC, (CompoundTag) SimpleConnection.CODEC.encodeStart(NbtOps.INSTANCE, relative)
                     .getOrThrow());
         } else if (connection instanceof BezierConnection bezierConnection) {
             // Convert absolute positions to relative
@@ -126,7 +136,7 @@ public interface ITubeConnectionEntity {
                     bezierConnection.getToPos().offset()
             ) : null;
             BezierConnection relative = new BezierConnection(fromRelative, toRelative, bezierConnection.getTubeSegments(), bezierConnection.getCachedRelativeBezierPoints());
-            tag.put(key, BezierConnection.CODEC.encodeStart(NbtOps.INSTANCE, relative)
+            output.store(key, CompoundTag.CODEC, (CompoundTag) BezierConnection.CODEC.encodeStart(NbtOps.INSTANCE, relative)
                     .getOrThrow());
         }
     }

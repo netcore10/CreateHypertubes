@@ -44,7 +44,7 @@ public abstract class TravelInteractTubeBlockEntity extends TubeBlockEntity {
         Vec3 center = Vec3.atCenterOf(blockPos);
         RandomSource rand = level.getRandom();
 
-        Vec3 faceNormal = Vec3.atLowerCornerOf(face.getNormal());
+        Vec3 faceNormal = Vec3.atLowerCornerOf(face.getUnitVec3i());
 
         double spread = 0.5;
 
@@ -57,7 +57,7 @@ public abstract class TravelInteractTubeBlockEntity extends TubeBlockEntity {
         double offsetB = (rand.nextDouble() - 0.5) * 2 * spread;
         Vec3 randomOffset = tangentA.scale(offsetA).add(tangentB.scale(offsetB));
 
-        Vec3 start = center.add(faceNormal.scale(1 + level.random.nextFloat())).add(randomOffset);
+        Vec3 start = center.add(faceNormal.scale(1 + level.getRandom().nextFloat())).add(randomOffset);
         Vec3 motion = center.subtract(start).normalize().scale(0.05);
 
 
@@ -70,7 +70,7 @@ public abstract class TravelInteractTubeBlockEntity extends TubeBlockEntity {
 
 
     protected void playOpenCloseSound(boolean open) {
-        RandomSource random = level.random;
+        RandomSource random = level.getRandom();
         float pitch = 0.4F + random.nextFloat() * 0.4F;
         level.playSound(null, this.getBlockPos(), open ? ModSounds.HYPERTUBE_ENTRANCE_OPEN.get() : ModSounds.HYPERTUBE_ENTRANCE_CLOSE.get(), SoundSource.BLOCKS, 0.2f, pitch);
     }
@@ -115,7 +115,7 @@ public abstract class TravelInteractTubeBlockEntity extends TubeBlockEntity {
 
     @Nullable
     protected LivingEntity getInRangeLivingEntities(ServerLevel level, Vec3 centerPos, Direction facing) {
-        Vec3 checkPos = centerPos.add(Vec3.atLowerCornerOf(facing.getOpposite().getNormal()));
+        Vec3 checkPos = centerPos.add(Vec3.atLowerCornerOf(facing.getOpposite().getUnitVec3i()));
 
         return level.getNearestEntity(
                 level.getEntitiesOfClass(LivingEntity.class,
@@ -159,7 +159,7 @@ public abstract class TravelInteractTubeBlockEntity extends TubeBlockEntity {
 
     @Override
     public void remove() {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             removeClient();
         }
         super.remove();

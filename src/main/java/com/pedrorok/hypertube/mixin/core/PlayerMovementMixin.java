@@ -18,7 +18,7 @@ public abstract class PlayerMovementMixin {
     @Inject(method = "canPlayerFitWithinBlocksAndEntitiesWhen", at = @At("HEAD"), cancellable = true)
     private void createHypertube$onCanPlayerFitWithinBlocksAndEntitiesWhen(Pose p_294172_, CallbackInfoReturnable<Boolean> cir) {
         Player player = (Player) (Object) this;
-        if (!player.getPersistentData().getBoolean(TravelConstants.TRAVEL_TAG)) return;
+        if (!player.getPersistentData().getBooleanOr(TravelConstants.TRAVEL_TAG, false)) return;
         cir.setReturnValue(true);
     }
 }

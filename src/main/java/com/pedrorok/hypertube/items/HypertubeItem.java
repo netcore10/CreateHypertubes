@@ -7,7 +7,7 @@ import com.pedrorok.hypertube.core.placement.ResponseDTO;
 import com.pedrorok.hypertube.core.placement.TubePlacement;
 import com.pedrorok.hypertube.registry.ModDataComponent;
 import com.pedrorok.hypertube.utils.MessageUtils;
-import com.simibubi.create.AllDataComponents;
+import com.zurrtum.create.AllDataComponents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -44,7 +44,7 @@ public class HypertubeItem extends BlockItem {
         Level level = pContext.getLevel();
         BlockState state = level.getBlockState(pos);
         Player player = pContext.getPlayer();
-        if (level.isClientSide) return InteractionResult.SUCCESS;
+        if (level.isClientSide()) return InteractionResult.SUCCESS;
 
         if (player == null)
             return super.useOn(pContext);

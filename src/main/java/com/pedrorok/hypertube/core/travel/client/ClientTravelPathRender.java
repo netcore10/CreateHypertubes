@@ -14,13 +14,13 @@ import com.pedrorok.hypertube.core.data.MoveDirection;
 import com.pedrorok.hypertube.utils.ModColors;
 import com.pedrorok.hypertube.utils.RenderUtils;
 import com.pedrorok.hypertube.utils.TubePulseRenderer;
-import net.createmod.catnip.math.AngleHelper;
+import com.zurrtum.create.catnip.math.AngleHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.Tuple;
+import com.pedrorok.hypertube.utils.Tuple;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
@@ -119,7 +119,7 @@ public class ClientTravelPathRender {
         }
         LocalPlayer player = mc.player;
         if (player == null) return;
-        if (!player.getPersistentData().getBoolean(TravelConstants.TRAVEL_TAG)) return;
+        if (!player.getPersistentData().getBooleanOr(TravelConstants.TRAVEL_TAG, false)) return;
         if (lastValidDirection == null) return;
 
         PoseStack poseStack = guiGraphics.pose();

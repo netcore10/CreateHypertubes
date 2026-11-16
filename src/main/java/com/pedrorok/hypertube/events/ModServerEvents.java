@@ -17,6 +17,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
  * @author Rok, Pedro Lucas nmm. Created on 22/04/2025
  * @project Create Hypertube
  */
-@EventBusSubscriber(bus = EventBusSubscriber.Bus.GAME, modid = HypertubeMod.MOD_ID)
+@EventBusSubscriber(modid = HypertubeMod.MOD_ID)
 public class ModServerEvents {
 
     @SubscribeEvent
@@ -38,7 +39,7 @@ public class ModServerEvents {
         if (!(event.getEntity() instanceof LivingEntity living)) return;
         if (!ServerConfig.canEntityTravel(living.getType())) return;
         TravelManager.entityTick(living);
-        if (event.getEntity().level().isClientSide) {
+        if (event.getEntity().level().isClientSide()) {
             return;
         }
         if (!(living instanceof Player player)) return;
@@ -54,7 +55,7 @@ public class ModServerEvents {
             return;
 
         event.setNewSize(EntityDimensions.fixed(0.5F, 0.5F));
-        if (entity.level().isClientSide) return;
+        if (entity.level().isClientSide()) return;
         entity.setPose(Pose.CROUCHING);
     }
 
@@ -67,7 +68,7 @@ public class ModServerEvents {
             event.setCanceled(true);
             return;
         }
-        if (event.getEntity().level().isClientSide) return;
+        if (event.getEntity().level().isClientSide()) return;
 
         if (!(event.getEntity() instanceof Player player)) return;
 
@@ -78,7 +79,7 @@ public class ModServerEvents {
     }
 
     @SubscribeEvent
-    public static void playerBreakBlock(BlockEvent.BreakEvent event) {
+    public static void playerBreakBlock(BreakBlockEvent event) {
         if (!TravelManager.hasHyperTubeData(event.getPlayer()))
             return;
 
@@ -87,7 +88,7 @@ public class ModServerEvents {
 
     @SubscribeEvent
     public static void onEntityHurt(LivingDamageEvent.Pre event) {
-        if (event.getEntity().level().isClientSide) return;
+        if (event.getEntity().level().isClientSide()) return;
         LivingEntity entity = event.getEntity();
         if (TravelManager.hasHyperTubeData(entity)) {
             event.setNewDamage(0);
@@ -95,10 +96,10 @@ public class ModServerEvents {
             return;
         }
 
-        if (!entity.getPersistentData().getBoolean(TravelConstants.IMMUNITY_TAG)) return;
+        if (!entity.getPersistentData().getBooleanOr(TravelConstants.IMMUNITY_TAG, false)) return;
         entity.getPersistentData().putBoolean(TravelConstants.IMMUNITY_TAG, false);
 
-        if (entity.getPersistentData().getLong(TravelConstants.LAST_TRAVEL_TIME) < System.currentTimeMillis()) return;
+        if (entity.getPersistentData().getLongOr(TravelConstants.LAST_TRAVEL_TIME, 0L) < System.currentTimeMillis()) return;
         event.getContainer().setNewDamage(0);
         entity.hurtMarked = true;
     }

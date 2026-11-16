@@ -15,7 +15,7 @@ import com.pedrorok.hypertube.utils.MessageUtils;
 import com.pedrorok.hypertube.utils.RayCastUtils;
 import com.pedrorok.hypertube.utils.TubeUtils;
 import com.pedrorok.hypertube.utils.VoxelUtils;
-import com.simibubi.create.content.equipment.wrench.IWrenchable;
+import com.zurrtum.create.content.equipment.wrench.IWrenchable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -123,7 +123,7 @@ public class HypertubeBlock extends TubeBlock implements EntityBlock {
     public VoxelShape getShape(BlockState state, @Nullable CollisionContext ctx) {
         if (ctx instanceof EntityCollisionContext ecc
             && ecc.getEntity() != null
-            && ecc.getEntity().getPersistentData().getBoolean(TravelConstants.TRAVEL_TAG)) {
+            && ecc.getEntity().getPersistentData().getBooleanOr(TravelConstants.TRAVEL_TAG, false)) {
             return VoxelUtils.empty();
         }
         if (state.getValue(EAST_WEST)) {
@@ -257,7 +257,7 @@ public class HypertubeBlock extends TubeBlock implements EntityBlock {
         if (!(blockEntity instanceof ITubeConnectionEntity thisConnection)) return;
         if (!stack.hasFoil()) {
             level.playSound(null, pos, getSoundType(state, level, pos, placer).getPlaceSound(), SoundSource.BLOCKS,
-                    1, level.random.nextFloat() * 0.1f + 0.9f);
+                    1, level.getRandom().nextFloat() * 0.1f + 0.9f);
             if (!player.isShiftKeyDown() && stack == player.getItemInHand(InteractionHand.MAIN_HAND)) {
                 TubePlacement.continueFrom(level, player, pos, getPlacementFacing(player));
             }
@@ -287,7 +287,7 @@ public class HypertubeBlock extends TubeBlock implements EntityBlock {
         if (!(otherBlockEntity instanceof ITubeConnectionEntity otherConnection)) return;
 
         level.playSound(null, pos, getSoundType(state, level, pos, placer).getPlaceSound(), SoundSource.BLOCKS,
-                1, level.random.nextFloat() * 0.1f + 0.9f);
+                1, level.getRandom().nextFloat() * 0.1f + 0.9f);
 
         if (!otherConnection.hasConnectionAvailable()) {
             MessageUtils.sendActionMessage(player, Component.translatable("placement.create_hypertube.invalid_conn").withColor(0xFF0000), true);
@@ -311,7 +311,7 @@ public class HypertubeBlock extends TubeBlock implements EntityBlock {
 
     @Override
     public InteractionResult onWrenched(BlockState state, UseOnContext context) {
-        if (context.getLevel().isClientSide) return InteractionResult.SUCCESS;
+        if (context.getLevel().isClientSide()) return InteractionResult.SUCCESS;
         if (context.getPlayer() == null) return InteractionResult.PASS;
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();

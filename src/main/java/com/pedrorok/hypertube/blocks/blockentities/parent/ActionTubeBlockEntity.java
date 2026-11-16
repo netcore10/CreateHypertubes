@@ -6,6 +6,8 @@ import com.pedrorok.hypertube.core.connection.interfaces.ITubeActionPoint;
 import com.pedrorok.hypertube.core.smarttube.ITubeAttachment;
 import com.pedrorok.hypertube.core.travel.TravelPathMover;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -34,31 +36,29 @@ public abstract class ActionTubeBlockEntity extends TravelInteractTubeBlockEntit
 
     // --------- Smart Tube Methods ---------
     @Override
-    protected void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-        super.write(compound, registries, clientPacket);
+    protected void write(ValueOutput compound, boolean clientPacket) {
+        super.write(compound, clientPacket);
 
         if (smartTubeAttachments.isEmpty()) return;
-        CompoundTag smartTubesTag = new CompoundTag();
+        ValueOutput smartTubesTag = compound.child("attachments");
         for (Map.Entry<Direction, ITubeAttachment> entry : smartTubeAttachments.entrySet()) {
-            smartTubesTag.put(entry.getKey().getSerializedName(), Codec.STRING.write(NbtOps.INSTANCE, entry.getValue().getId()));
+            smartTubesTag.putString(entry.getKey().getSerializedName(), entry.getValue().getId());
         }
-        compound.put("attachments", smartTubesTag);
     }
 
     @Override
-    protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-        super.read(compound, registries, clientPacket);
+    protected void read(ValueInput compound, boolean clientPacket) {
+        super.read(compound, clientPacket);
 
         smartTubeAttachments.clear();
 
-        if (!compound.contains("attachments", Tag.TAG_COMPOUND)) return;
+        ValueInput smartTubesTag = compound.child("attachments").orElse(null);
+        if (smartTubesTag == null) return;
 
-        CompoundTag smartTubesTag = compound.getCompound("attachments");
         for (Direction direction : Direction.values()) {
             String directionKey = direction.getSerializedName();
-            if (!smartTubesTag.contains(directionKey, Tag.TAG_STRING)) continue;
-
-            String smartTubeId = smartTubesTag.getString(directionKey);
+            String smartTubeId = smartTubesTag.getString(directionKey).orElse(null);
+            if (smartTubeId == null) continue;
             ITubeAttachment smartTube = ITubeAttachment.get(smartTubeId);
 
             if (smartTube == null) {
@@ -74,7 +74,7 @@ public abstract class ActionTubeBlockEntity extends TravelInteractTubeBlockEntit
     public void addTubeAttachment(Direction direction, ITubeAttachment smartTube) {
         smartTubeAttachments.put(direction, smartTube);
         setChanged();
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             level.updateNeighborsAt(worldPosition, getBlockState().getBlock());
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
@@ -93,7 +93,7 @@ public abstract class ActionTubeBlockEntity extends TravelInteractTubeBlockEntit
         ITubeAttachment removedAttachment = smartTubeAttachments.remove(direction);
         if (removedAttachment != null) {
             setChanged();
-            if (level != null && !level.isClientSide) {
+            if (level != null && !level.isClientSide()) {
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
                 level.updateNeighborsAt(worldPosition, getBlockState().getBlock());
             }

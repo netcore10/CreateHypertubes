@@ -5,13 +5,13 @@ import com.pedrorok.hypertube.blocks.blockentities.HypertubeBlockEntity;
 import com.pedrorok.hypertube.core.connection.SimpleConnection;
 import com.pedrorok.hypertube.core.connection.interfaces.IConnection;
 import com.pedrorok.hypertube.registry.ModBlocks;
-import com.simibubi.create.AllItems;
-import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
-import net.createmod.catnip.math.Pointing;
-import net.createmod.ponder.api.PonderPalette;
-import net.createmod.ponder.api.scene.SceneBuilder;
-import net.createmod.ponder.api.scene.SceneBuildingUtil;
-import net.createmod.ponder.api.scene.Selection;
+import com.zurrtum.create.AllItems;
+import com.zurrtum.create.client.foundation.ponder.CreateSceneBuilder;
+import com.zurrtum.create.catnip.math.Pointing;
+import com.zurrtum.create.client.ponder.api.PonderPalette;
+import com.zurrtum.create.client.ponder.api.scene.SceneBuilder;
+import com.zurrtum.create.client.ponder.api.scene.SceneBuildingUtil;
+import com.zurrtum.create.client.ponder.api.scene.Selection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -54,7 +54,7 @@ public class TubeScenes {
 
         scene.world().showSection(block1S, Direction.DOWN);
         scene.idle(10);
-        ItemStack tubeItem = ModBlocks.HYPERTUBE.asStack();
+        ItemStack tubeItem = ModBlocks.HYPERTUBE.toStack();
 
         scene.overlay()
                 .showText(70)
@@ -130,12 +130,12 @@ public class TubeScenes {
         scene.overlay()
                 .showControls(blockL2.getCenter().add(0, 0, 0.3), Pointing.LEFT, 15)
                 .rightClick()
-                .withItem(ModBlocks.HYPERTUBE.asStack());
+                .withItem(ModBlocks.HYPERTUBE.toStack());
         scene.idle(25);
         scene.overlay()
                 .showControls(blockR1.getCenter().add(0, 0, -0.3), Pointing.RIGHT, 15)
                 .rightClick()
-                .withItem(ModBlocks.HYPERTUBE.asStack());
+                .withItem(ModBlocks.HYPERTUBE.toStack());
         scene.idle(20);
         setConnection(scene, blockL2, "sec-2-l2", true);
         scene.idle(10);

@@ -14,8 +14,8 @@ import com.pedrorok.hypertube.core.travel.TravellerEntity;
 import com.pedrorok.hypertube.core.travel.client.ClientTravelPathMover;
 import com.pedrorok.hypertube.core.travel.client.ClientTravelPathRender;
 import com.pedrorok.hypertube.utils.TubePulseRenderer;
-import net.createmod.catnip.animation.AnimationTickHolder;
-import net.createmod.catnip.placement.PlacementClient;
+import com.zurrtum.create.client.catnip.animation.AnimationTickHolder;
+import com.zurrtum.create.client.catnip.placement.PlacementClient;
 import net.createmod.catnip.render.DefaultSuperRenderTypeBuffer;
 import net.createmod.catnip.render.SuperRenderTypeBuffer;
 import net.minecraft.client.DeltaTracker;
@@ -32,7 +32,7 @@ import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
  * @author Rok, Pedro Lucas nmm. Created on 23/04/2025
  * @project Create Hypertube
  */
-@EventBusSubscriber(Dist.CLIENT)
+@EventBusSubscriber(value = Dist.CLIENT, modid = HypertubeMod.MOD_ID)
 public class ClientEvents {
 
     private static long lastFrameTime = 0;
@@ -114,7 +114,7 @@ public class ClientEvents {
     @SubscribeEvent
     public static void onRenderEntity(RenderLivingEvent.Pre event) {
         LivingEntity entity = event.getEntity();
-        if (!entity.getPersistentData().getBoolean(TravelConstants.TRAVEL_TAG)) return;
+        if (!entity.getPersistentData().getBooleanOr(TravelConstants.TRAVEL_TAG, false)) return;
         PoseStack poseStack = event.getPoseStack();
         TravellerEntity travellerEntity = TravelConstants.Client.ENTITIES_RENDER
                 .get(entity.getType());
@@ -127,7 +127,7 @@ public class ClientEvents {
     @SubscribeEvent
     public static void onRenderEntityPost(RenderLivingEvent.Post event) {
         LivingEntity entity = event.getEntity();
-        if (!entity.getPersistentData().getBoolean(TravelConstants.TRAVEL_TAG)) return;
+        if (!entity.getPersistentData().getBooleanOr(TravelConstants.TRAVEL_TAG, false)) return;
         event.getPoseStack().popPose();
     }
 }

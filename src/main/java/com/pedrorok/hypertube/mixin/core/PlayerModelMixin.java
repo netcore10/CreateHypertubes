@@ -21,7 +21,7 @@ public abstract class PlayerModelMixin {
     @Inject(method = "setupAnim*", at = @At("RETURN"), cancellable = true, order = 1001)
     private void createHypertube$onSetupAnim(LivingEntity entity, float limbSwing, float limbSwingAmount,
                                              float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
-        if (!entity.getPersistentData().getBoolean(TravelConstants.TRAVEL_TAG)) return;
+        if (!entity.getPersistentData().getBooleanOr(TravelConstants.TRAVEL_TAG, false)) return;
 
 
         HumanoidModel<?> model = (HumanoidModel<?>) (Object) this;

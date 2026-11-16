@@ -12,8 +12,8 @@ import com.pedrorok.hypertube.registry.ModBlocks;
 import com.pedrorok.hypertube.utils.MessageUtils;
 import com.pedrorok.hypertube.utils.TubeUtils;
 import com.pedrorok.hypertube.utils.VoxelUtils;
-import com.simibubi.create.content.equipment.wrench.IWrenchable;
-import com.simibubi.create.content.kinetics.simpleRelays.ICogWheel;
+import com.zurrtum.create.content.equipment.wrench.IWrenchable;
+import com.zurrtum.create.content.kinetics.simpleRelays.ICogWheel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -139,7 +139,7 @@ public class HyperAcceleratorBlock extends ActionTubeBlock implements EntityBloc
 
     @Override
     public InteractionResult onWrenched(BlockState state, UseOnContext context) {
-        if (context.getLevel().isClientSide) return InteractionResult.SUCCESS;
+        if (context.getLevel().isClientSide()) return InteractionResult.SUCCESS;
         if (super.onWrenched(state, context) == InteractionResult.SUCCESS) return InteractionResult.SUCCESS;
 
         BlockEntity blockEntity = context.getLevel().getBlockEntity(context.getClickedPos());
@@ -186,7 +186,7 @@ public class HyperAcceleratorBlock extends ActionTubeBlock implements EntityBloc
     public VoxelShape getShape(BlockState state, @Nullable CollisionContext ctx) {
         if (ctx instanceof EntityCollisionContext ecc
             && ecc.getEntity() != null
-            && ecc.getEntity().getPersistentData().getBoolean(TravelConstants.TRAVEL_TAG)) {
+            && ecc.getEntity().getPersistentData().getBooleanOr(TravelConstants.TRAVEL_TAG, false)) {
             return VoxelUtils.empty();
         }
         return Shapes.block();

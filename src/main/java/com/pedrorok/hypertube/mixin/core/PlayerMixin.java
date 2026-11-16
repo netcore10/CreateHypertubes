@@ -24,9 +24,9 @@ public class PlayerMixin {
     private void createHypertube$onTick(CallbackInfo ci) {
         LivingEntity entity = (LivingEntity) (Object) this;
 
-        if (!entity.getPersistentData().getBoolean(TravelConstants.TRAVEL_TAG)) return;
+        if (!entity.getPersistentData().getBooleanOr(TravelConstants.TRAVEL_TAG, false)) return;
 
-        if (!(entity instanceof Player player) || !entity.level().isClientSide) return;
+        if (!(entity instanceof Player player) || !entity.level().isClientSide()) return;
         createHypertube$tickInClient(player);
     }
 

@@ -5,7 +5,7 @@ import com.pedrorok.hypertube.core.travel.TravelConstants;
 import com.pedrorok.hypertube.core.travel.client.ClientTravelPathMover;
 import com.pedrorok.hypertube.network.packets.EscapeTubePacket;
 import com.pedrorok.hypertube.registry.ModKeybinds;
-import net.createmod.catnip.animation.LerpedFloat;
+import com.zurrtum.create.catnip.animation.LerpedFloat;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -36,7 +36,7 @@ public class TubeEscapeHandler {
         }
         float value = holdKeyProgress.getValue();
 
-        if (!player.getPersistentData().getBoolean(TravelConstants.TRAVEL_TAG)) {
+        if (!player.getPersistentData().getBooleanOr(TravelConstants.TRAVEL_TAG, false)) {
             if (value < 0) return;
             holdKeyProgress.setValue(Math.max(0, value - .05f));
             return;
@@ -71,7 +71,7 @@ public class TubeEscapeHandler {
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
-        if (!mc.player.getPersistentData().getBoolean(TravelConstants.TRAVEL_TAG)) return;
+        if (!mc.player.getPersistentData().getBooleanOr(TravelConstants.TRAVEL_TAG, false)) return;
 
         Component bar = makeProgressBar(Math.min(1f, ((progress * 8f / 7f) - 0.1f) * 1.1F));
 

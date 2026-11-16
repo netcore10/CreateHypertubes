@@ -13,8 +13,8 @@ import com.pedrorok.hypertube.registry.ModDataComponent;
 import com.pedrorok.hypertube.utils.MessageUtils;
 import com.pedrorok.hypertube.utils.RayCastUtils;
 import com.pedrorok.hypertube.utils.TubeUtils;
-import com.simibubi.create.content.trains.track.TrackBlockOutline;
-import net.createmod.catnip.animation.LerpedFloat;
+import com.zurrtum.create.client.content.trains.track.TrackBlockOutline;
+import com.zurrtum.create.catnip.animation.LerpedFloat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -175,7 +175,7 @@ public class TubePlacement {
         }
         TubeUtils.checkSurvivalItems(player, (int) connection.distance(), false);
 
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             connection.drawPath(LerpedFloat.linear()
                     .startWithValue(0), true);
         }

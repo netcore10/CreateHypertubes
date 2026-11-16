@@ -10,10 +10,12 @@ import com.pedrorok.hypertube.core.connection.TubeConnectionException;
 import com.pedrorok.hypertube.core.connection.interfaces.IConnection;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Tuple;
+import com.pedrorok.hypertube.utils.Tuple;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -36,17 +38,15 @@ public class HypertubeBlockEntity extends TubeBlockEntity {
 
     // --------- Nbt Methods ---------
     @Override
-    protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-        super.read(compound, registries, clientPacket);
-        this.connectionOne = compound.contains("ConnectionTo")
-                ? getConnectionRelative(compound, "ConnectionTo", worldPosition) : null;
-        this.connectionTwo = compound.contains("ConnectionFrom")
-                ? getConnectionRelative(compound, "ConnectionFrom", worldPosition) : null;
+    protected void read(ValueInput compound, boolean clientPacket) {
+        super.read(compound, clientPacket);
+        this.connectionOne = getConnectionRelative(compound, "ConnectionTo", worldPosition);
+        this.connectionTwo = getConnectionRelative(compound, "ConnectionFrom", worldPosition);
     }
 
     @Override
-    protected void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-        super.write(compound, registries, clientPacket);
+    protected void write(ValueOutput compound, boolean clientPacket) {
+        super.write(compound, clientPacket);
         writeConnectionRelative(compound, worldPosition, new Tuple<>(connectionOne, "ConnectionTo"), new Tuple<>(connectionTwo, "ConnectionFrom"));
     }
     // --------- Nbt Methods ---------

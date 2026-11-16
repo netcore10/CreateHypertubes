@@ -66,6 +66,9 @@ def installRunMods = tasks.register('installRunMods', Sync) {
 }
 tasks.matching { it.name.startsWith('prepare') && it.name.endsWith('Run') }.configureEach { dependsOn installRunMods }
 
+// Registrate's datagen output from the 1.21.1 version (blockstates, models, recipes, ...), checked in
+sourceSets.main.resources.srcDir 'src/generated/resources'
+
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
     var replaceProperties = [minecraft_version      : minecraft_version,
                              minecraft_version_range: minecraft_version_range,
@@ -90,3 +93,8 @@ neoForge.ideSyncTask generateModMetadata
 tasks.withType(Jar).configureEach {
     archiveFileName = "${mod_id}-${version}-${archive_classifier}.jar"
 }
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += ['-Xmaxerrs', '5000', '-proc:full']
+}
+sourceSets.main.java { exclude '**/client/renderer/**' }

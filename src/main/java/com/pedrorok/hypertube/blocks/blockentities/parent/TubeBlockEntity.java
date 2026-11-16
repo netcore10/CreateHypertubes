@@ -5,7 +5,7 @@ import com.pedrorok.hypertube.core.connection.SimpleConnection;
 import com.pedrorok.hypertube.core.connection.interfaces.IConnection;
 import com.pedrorok.hypertube.core.connection.interfaces.ITubeConnection;
 import com.pedrorok.hypertube.core.connection.interfaces.ITubeConnectionEntity;
-import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
+import com.zurrtum.create.content.kinetics.base.KineticBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Block;
@@ -28,7 +28,7 @@ public abstract class TubeBlockEntity extends KineticBlockEntity implements ITub
     protected abstract int getConnectionCount();
 
     public void sync() {
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
         }
     }
@@ -118,6 +118,6 @@ public abstract class TubeBlockEntity extends KineticBlockEntity implements ITub
         IConnection first = connections.get(0);
         SimpleConnection sameConnectionBlockPos = IConnection.getSameConnectionBlockPos(first, level, getBlockPos());
         if (sameConnectionBlockPos == null) return null;
-        return Vec3.atLowerCornerOf(sameConnectionBlockPos.direction().getOpposite().getNormal());
+        return Vec3.atLowerCornerOf(sameConnectionBlockPos.direction().getOpposite().getUnitVec3i());
     }
 }

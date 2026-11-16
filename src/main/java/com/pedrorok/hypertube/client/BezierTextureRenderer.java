@@ -4,13 +4,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.pedrorok.hypertube.HypertubeMod;
 import com.pedrorok.hypertube.core.connection.BezierConnection;
-import net.createmod.ponder.foundation.ui.PonderUI;
+import com.zurrtum.create.client.ponder.foundation.ui.PonderUI;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -40,8 +40,8 @@ public class BezierTextureRenderer {
 
     private static final float UP_ALIGNMENT_THRESHOLD = 0.999f;
 
-    private final ResourceLocation textureTube;
-    private final ResourceLocation textureLine;
+    private final Identifier textureTube;
+    private final Identifier textureLine;
 
     public BezierTextureRenderer() {
         this.textureTube = HypertubeMod.of("textures/block/tube_base_glass.png");

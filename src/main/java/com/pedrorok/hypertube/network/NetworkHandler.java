@@ -11,7 +11,7 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
  * @author Rok, Pedro Lucas nmm. Created on 18/06/2025
  * @project Create Hypertube
  */
-@EventBusSubscriber(modid = HypertubeMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = HypertubeMod.MOD_ID)
 public class NetworkHandler {
 
     @SubscribeEvent

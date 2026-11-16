@@ -1,94 +1,48 @@
 package com.pedrorok.hypertube.registry;
 
 import com.pedrorok.hypertube.HypertubeMod;
-import com.pedrorok.hypertube.blocks.*;
-import com.pedrorok.hypertube.items.HypertubeItem;
-import com.simibubi.create.foundation.data.CreateRegistrate;
-import com.tterrag.registrate.util.entry.BlockEntry;
-import net.minecraft.world.item.BlockItem;
+import com.pedrorok.hypertube.blocks.HyperAcceleratorBlock;
+import com.pedrorok.hypertube.blocks.HyperEntranceBlock;
+import com.pedrorok.hypertube.blocks.HyperJunctionBlock;
+import com.pedrorok.hypertube.blocks.HypertubeBlock;
+import com.pedrorok.hypertube.blocks.TubePathBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-
-import static com.simibubi.create.foundation.data.TagGen.axeOrPickaxe;
-
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredBlock;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
 /**
  * @author Rok, Pedro Lucas nmm. Created on 17/04/2025
  * @project Create Hypertube
+ * <p>
+ * 26.2 / Create Fly port: plain DeferredRegister instead of Create's Registrate (not in Create Fly). Block models, states,
+ * loot and mineable tags come from the checked-in Registrate datagen output (src/generated).
  */
 public class ModBlocks {
+    public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(HypertubeMod.MOD_ID);
 
-    public static final BlockBehaviour.Properties PROPERTIES = BlockBehaviour.Properties.of()
-            .destroyTime(1.0f)
+    private static BlockBehaviour.Properties properties(BlockBehaviour.Properties p) {
+        return p.destroyTime(1.0f)
             .explosionResistance(10.0f)
             .sound(SoundType.METAL)
             .noOcclusion()
             .isViewBlocking((state, level, pos) -> false)
             .isSuffocating((state, level, pos) -> false);
+    }
 
-    private static final CreateRegistrate REGISTRATE = HypertubeMod.get();
+    public static final DeferredBlock<HypertubeBlock> HYPERTUBE = BLOCKS.registerBlock("hypertube", HypertubeBlock::new, ModBlocks::properties);
+    public static final DeferredBlock<HyperEntranceBlock> HYPERTUBE_ENTRANCE = BLOCKS.registerBlock("hypertube_entrance", HyperEntranceBlock::new, ModBlocks::properties);
+    public static final DeferredBlock<HyperAcceleratorBlock> HYPER_ACCELERATOR = BLOCKS.registerBlock("hypertube_accelerator", HyperAcceleratorBlock::new, ModBlocks::properties);
+    public static final DeferredBlock<HyperJunctionBlock> HYPER_JUNCTION = BLOCKS.registerBlock("hypertube_junction", HyperJunctionBlock::new, ModBlocks::properties);
+    public static final DeferredBlock<TubePathBlock> TUBE_PATH = BLOCKS.registerBlock("tube_path", TubePathBlock::new, p -> p
+        .strength(-1.0F, 3600000.0F)
+        .noOcclusion()
+        .noLootTable()
+        .isViewBlocking((state, level, pos) -> false)
+        .isSuffocating((state, level, pos) -> false));
 
-    public static final BlockEntry<HypertubeBlock> HYPERTUBE = REGISTRATE.block("hypertube", HypertubeBlock::new)
-            .item(HypertubeItem::new)
-            .model((ctx, prov) -> {
-            })
-            .build()
-            .properties((a) -> PROPERTIES)
-            .transform(axeOrPickaxe())
-            .blockstate((ctx, prov) -> {
-            })
-            .defaultLoot()
-            .register();
-
-    public static final BlockEntry<HyperEntranceBlock> HYPERTUBE_ENTRANCE = REGISTRATE.block("hypertube_entrance", HyperEntranceBlock::new)
-            .simpleItem()
-            .properties((a) -> PROPERTIES)
-            .transform(axeOrPickaxe())
-            .blockstate((ctx, prov) -> {
-            })
-            .defaultLoot()
-            .item(BlockItem::new)
-            .model((ctx, prov) -> {
-            })
-            .build()
-            .register();
-
-    public static final BlockEntry<HyperAcceleratorBlock> HYPER_ACCELERATOR = REGISTRATE.block("hypertube_accelerator", HyperAcceleratorBlock::new)
-            .simpleItem()
-            .properties((a) -> PROPERTIES)
-            .transform(axeOrPickaxe())
-            .blockstate((ctx, prov) -> {
-            })
-            .defaultLoot()
-            .item(BlockItem::new)
-            .model((ctx, prov) -> {
-            })
-            .build()
-            .register();
-
-    public static final BlockEntry<HyperJunctionBlock> HYPER_JUNCTION = REGISTRATE.block("hypertube_junction", HyperJunctionBlock::new)
-            .simpleItem()
-            .properties((a) -> PROPERTIES)
-            .transform(axeOrPickaxe())
-            .blockstate((ctx, prov) -> {
-            })
-            .defaultLoot()
-            .item(BlockItem::new)
-            .model((ctx, prov) -> {
-            })
-            .build()
-            .register();
-
-    public static final BlockEntry<TubePathBlock> TUBE_PATH = REGISTRATE.block("tube_path", TubePathBlock::new)
-            .properties(p -> p.strength(-1.0F, 3600000.0F)
-                    .noOcclusion()
-                    .noLootTable()
-                    .isViewBlocking((state, level, pos) -> false)
-                    .isSuffocating((state, level, pos) -> false))
-            .blockstate((ctx, prov) -> {
-            })
-            .register();
-
-    public static void register() {
+    public static void register(IEventBus modBus) {
+        BLOCKS.register(modBus);
     }
 }

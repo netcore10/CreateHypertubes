@@ -5,7 +5,7 @@ import com.pedrorok.hypertube.client.particles.SuctionParticle;
 import com.pedrorok.hypertube.ponder.HypertubesPonderPlugin;
 import com.pedrorok.hypertube.registry.ModBlocks;
 import com.pedrorok.hypertube.registry.ModParticles;
-import net.createmod.ponder.foundation.PonderIndex;
+import com.zurrtum.create.client.ponder.foundation.PonderIndex;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
@@ -19,7 +19,7 @@ import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
  * @author Rok, Pedro Lucas nmm. Created on 21/04/2025
  * @project Create Hypertube
  */
-@EventBusSubscriber(value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD, modid = HypertubeMod.MOD_ID)
+@EventBusSubscriber(value = Dist.CLIENT, modid = HypertubeMod.MOD_ID)
 public class ModClientEvents {
 
     @SubscribeEvent

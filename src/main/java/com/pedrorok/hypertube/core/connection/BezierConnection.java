@@ -7,10 +7,10 @@ import com.pedrorok.hypertube.core.placement.ResponseDTO;
 import com.pedrorok.hypertube.utils.CodecUtils;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
-import net.createmod.catnip.animation.LerpedFloat;
-import net.createmod.catnip.data.Pair;
-import net.createmod.catnip.outliner.Outliner;
-import net.createmod.catnip.theme.Color;
+import com.zurrtum.create.catnip.animation.LerpedFloat;
+import com.zurrtum.create.catnip.data.Pair;
+import com.zurrtum.create.client.catnip.outliner.Outliner;
+import com.zurrtum.create.catnip.theme.Color;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.codec.StreamCodec;
@@ -102,7 +102,7 @@ public class BezierConnection implements IConnection {
         double distance = fromRelative.distanceTo(toRelative);
         Vec3 controlPoint1 = createFirstControlPoint(fromRelative, fromPos.direction(), distance);
         Vec3 controlPoint2 = createSecondControlPoint(toRelative, fromPos.direction(), distance,
-                toPos.direction() != null ? Vec3.atLowerCornerOf(toPos.direction().getNormal()) : null);
+                toPos.direction() != null ? Vec3.atLowerCornerOf(toPos.direction().getUnitVec3i()) : null);
 
         List<Vec3> curvePoints = new ArrayList<>();
         for (int i = 0; i <= detailLevel; i++) {

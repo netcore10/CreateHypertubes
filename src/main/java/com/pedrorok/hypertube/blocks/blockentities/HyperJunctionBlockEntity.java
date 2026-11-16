@@ -15,16 +15,18 @@ import com.pedrorok.hypertube.core.travel.TravelConstants;
 import com.pedrorok.hypertube.utils.JunctionDirectionUtils;
 import com.pedrorok.hypertube.utils.ModColors;
 import com.pedrorok.hypertube.utils.TubePulseRenderer;
-import com.simibubi.create.api.equipment.goggles.IHaveHoveringInformation;
+import com.zurrtum.create.client.api.goggles.IHaveHoveringInformation;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Tuple;
+import com.pedrorok.hypertube.utils.Tuple;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -58,19 +60,16 @@ public class HyperJunctionBlockEntity extends ActionTubeBlockEntity implements I
 
     // --------- Nbt Methods ---------
     @Override
-    protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-        super.read(compound, registries, clientPacket);
-        connectionOne = compound.contains("ConnectionOne")
-                ? getConnectionRelative(compound, "ConnectionOne", worldPosition) : null;
-        connectionTwo = compound.contains("ConnectionTwo")
-                ? getConnectionRelative(compound, "ConnectionTwo", worldPosition) : null;
-        connectionThree = compound.contains("ConnectionThree")
-                ? getConnectionRelative(compound, "ConnectionThree", worldPosition) : null;
+    protected void read(ValueInput compound, boolean clientPacket) {
+        super.read(compound, clientPacket);
+        connectionOne = getConnectionRelative(compound, "ConnectionOne", worldPosition);
+        connectionTwo = getConnectionRelative(compound, "ConnectionTwo", worldPosition);
+        connectionThree = getConnectionRelative(compound, "ConnectionThree", worldPosition);
     }
 
     @Override
-    protected void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-        super.write(compound, registries, clientPacket);
+    protected void write(ValueOutput compound, boolean clientPacket) {
+        super.write(compound, clientPacket);
         writeConnectionRelative(compound, worldPosition,
                 new Tuple<>(connectionOne, "ConnectionOne"),
                 new Tuple<>(connectionTwo, "ConnectionTwo"),
@@ -90,7 +89,7 @@ public class HyperJunctionBlockEntity extends ActionTubeBlockEntity implements I
     @Override
     public void tick() {
         super.tick();
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             tickClient();
             return;
         }
@@ -103,7 +102,7 @@ public class HyperJunctionBlockEntity extends ActionTubeBlockEntity implements I
 
         LivingEntity nearbyEntity = getNearbyLivingEntities((ServerLevel) level, pos.getCenter());
 
-        boolean canOpen = nearbyEntity != null && nearbyEntity.getPersistentData().getBoolean(TravelConstants.TRAVEL_TAG);
+        boolean canOpen = nearbyEntity != null && nearbyEntity.getPersistentData().getBooleanOr(TravelConstants.TRAVEL_TAG, false);
 
         isTubeClosed(canOpen, isOpen);
     }
@@ -126,7 +125,7 @@ public class HyperJunctionBlockEntity extends ActionTubeBlockEntity implements I
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return false;
         if (mc.player.tickCount % 10 != 0) return false;
-        if (mc.player.getPersistentData().getBoolean(TravelConstants.TRAVEL_TAG)) return false;
+        if (mc.player.getPersistentData().getBooleanOr(TravelConstants.TRAVEL_TAG, false)) return false;
 
         List<Direction> connectedFaces = JunctionDirectionUtils.getConnectedFaces(getBlockState(), null, (HyperJunctionBlock) getBlockState().getBlock());
         renderFromDirections(connectedFaces, 0.3f, ModColors.GREEN, 0.72f);
@@ -227,11 +226,11 @@ public class HyperJunctionBlockEntity extends ActionTubeBlockEntity implements I
                 && connectionDirection != null
                 && connectionDirection.getOpposite() == getBlockState().getValue(HyperJunctionBlock.FACING)) {
             Direction facing = getBlockState().getValue(HyperJunctionBlock.FACING);
-            if (level == null) return Vec3.atLowerCornerOf(facing.getNormal());
+            if (level == null) return Vec3.atLowerCornerOf(facing.getUnitVec3i());
             facing = level.getRandom().nextBoolean() ? facing.getClockWise() : facing.getCounterClockWise();
-            return Vec3.atLowerCornerOf(facing.getNormal());
+            return Vec3.atLowerCornerOf(facing.getUnitVec3i());
         }
-        return connectionDirection != null ? Vec3.atLowerCornerOf(connectionDirection.getNormal()) : null;
+        return connectionDirection != null ? Vec3.atLowerCornerOf(connectionDirection.getUnitVec3i()) : null;
     }
 
     @Override
@@ -252,7 +251,7 @@ public class HyperJunctionBlockEntity extends ActionTubeBlockEntity implements I
     @Override
     public void remove() {
         super.remove();
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             TubeSoundManager.TubeAmbientSound sound = TubeSoundManager.getAmbientSound(tubeSoundId);
             sound.stopSound();
         }

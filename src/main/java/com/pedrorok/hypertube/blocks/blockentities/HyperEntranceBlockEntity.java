@@ -12,16 +12,18 @@ import com.pedrorok.hypertube.core.sound.TubeSoundManager;
 import com.pedrorok.hypertube.core.travel.TravelConstants;
 import com.pedrorok.hypertube.core.travel.TravelManager;
 import com.pedrorok.hypertube.utils.TubeUtils;
-import com.simibubi.create.api.equipment.goggles.IHaveHoveringInformation;
-import com.simibubi.create.content.kinetics.base.IRotate;
+import com.zurrtum.create.client.api.goggles.IHaveHoveringInformation;
+import com.zurrtum.create.content.kinetics.base.IRotate;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Tuple;
+import com.pedrorok.hypertube.utils.Tuple;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -49,15 +51,14 @@ public class HyperEntranceBlockEntity extends ActionTubeBlockEntity implements I
 
     // --------- Nbt Methods ---------
     @Override
-    protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-        super.read(compound, registries, clientPacket);
-        connection = compound.contains("Connection")
-                ? getConnectionRelative(compound, "Connection", worldPosition) : null;
+    protected void read(ValueInput compound, boolean clientPacket) {
+        super.read(compound, clientPacket);
+        connection = getConnectionRelative(compound, "Connection", worldPosition);
     }
 
     @Override
-    protected void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-        super.write(compound, registries, clientPacket);
+    protected void write(ValueOutput compound, boolean clientPacket) {
+        super.write(compound, clientPacket);
         writeConnectionRelative(compound, worldPosition, new Tuple<>(connection, "Connection"));
     }
     // --------- Nbt Methods ---------
@@ -75,7 +76,7 @@ public class HyperEntranceBlockEntity extends ActionTubeBlockEntity implements I
     public void tick() {
         super.tick();
         Boolean isBlocked = getBlockState().getValue(HyperEntranceBlock.IN_FRONT);
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             tickClient(isBlocked);
             return;
         }
@@ -97,14 +98,14 @@ public class HyperEntranceBlockEntity extends ActionTubeBlockEntity implements I
         boolean isNotLocked = !getBlockState().getValue(HyperEntranceBlock.LOCKED);
         LivingEntity nearbyEntity = getNearbyLivingEntities((ServerLevel) level, pos.getCenter());
 
-        boolean canOpen = nearbyEntity != null && (isNotLocked || nearbyEntity.isShiftKeyDown() || nearbyEntity.getPersistentData().getBoolean(TravelConstants.TRAVEL_TAG));
+        boolean canOpen = nearbyEntity != null && (isNotLocked || nearbyEntity.isShiftKeyDown() || nearbyEntity.getPersistentData().getBooleanOr(TravelConstants.TRAVEL_TAG, false));
 
         if (isTubeClosed(canOpen, isOpen)) return;
 
         LivingEntity inRangeEntity = getInRangeLivingEntities((ServerLevel) level, pos.getCenter(), state.getValue(HyperEntranceBlock.FACING));
         if (inRangeEntity == null) return;
 
-        if (isNotLocked && inRangeEntity.isShiftKeyDown() && !inRangeEntity.getPersistentData().getBoolean(TravelConstants.TRAVEL_TAG)) {
+        if (isNotLocked && inRangeEntity.isShiftKeyDown() && !inRangeEntity.getPersistentData().getBooleanOr(TravelConstants.TRAVEL_TAG, false)) {
             return;
         }
 
@@ -197,7 +198,7 @@ public class HyperEntranceBlockEntity extends ActionTubeBlockEntity implements I
     public Vec3 getExitDirection(@Nullable Direction connectionDirection) {
         if (getBlockState().hasProperty(HyperEntranceBlock.FACING)) {
             Direction facing = getBlockState().getValue(HyperEntranceBlock.FACING).getOpposite();
-            return Vec3.atLowerCornerOf(facing.getNormal());
+            return Vec3.atLowerCornerOf(facing.getUnitVec3i());
         }
         return null;
     }
