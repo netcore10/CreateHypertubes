@@ -61,7 +61,7 @@ public class ClientEvents {
             TubeEscapeHandler.onClientTick();
             return;
         }
-        TubePlacement.clientTick();
+        com.pedrorok.hypertube.client.TubePlacementClient.clientTick();
         DetachedCameraController.tickCamera();
         ClientTravelPathMover.onClientTick();
     }
@@ -96,7 +96,7 @@ public class ClientEvents {
         Vec3 camera = event.getLevelRenderState().cameraRenderState.pos;
 
         ms.pushPose();
-        TubePlacement.drawCustomBlockSelection(ms, event.getSubmitNodeCollector(), camera);
+        com.pedrorok.hypertube.client.TubePlacementClient.drawCustomBlockSelection(ms, event.getSubmitNodeCollector(), camera);
         ms.popPose();
 
         TubePulseRenderer.onRenderLevelStage(ms, event.getSubmitNodeCollector(),

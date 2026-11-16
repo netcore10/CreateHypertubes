@@ -14,7 +14,6 @@ import com.pedrorok.hypertube.core.sound.TubeSoundManager;
 import com.pedrorok.hypertube.core.travel.TravelConstants;
 import com.pedrorok.hypertube.utils.JunctionDirectionUtils;
 import com.pedrorok.hypertube.utils.ModColors;
-import com.pedrorok.hypertube.utils.TubePulseRenderer;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.storage.ValueInput;
