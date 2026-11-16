@@ -187,7 +187,8 @@ public class TravelManager {
 
 
         if (level instanceof ServerLevel) {
-            entity.teleportTo((ServerLevel) level, lastBlockPos.x, lastBlockPos.y, lastBlockPos.z, Set.of(Relative.X, Relative.Y, Relative.Z, Relative.Y_ROT, Relative.X_ROT), entity.getYRot(), entity.getXRot(), false);
+            // Absolute position, like 1.21.1's teleportTo (26.2's Relative.X/Y/Z would add the current position); velocity is set right after
+            entity.teleportTo((ServerLevel) level, lastBlockPos.x, lastBlockPos.y, lastBlockPos.z, Set.of(), entity.getYRot(), entity.getXRot(), false);
         }
         entity.setDeltaMovement(lastDir.scale(Math.max(finalSpeed, 1f)));
         entity.hurtMarked = true;
