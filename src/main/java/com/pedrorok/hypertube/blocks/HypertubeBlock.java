@@ -17,6 +17,8 @@ import com.pedrorok.hypertube.utils.TubeUtils;
 import com.pedrorok.hypertube.utils.VoxelUtils;
 import com.zurrtum.create.content.equipment.wrench.IWrenchable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.redstone.Orientation;
+import org.jetbrains.annotations.Nullable;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -141,8 +143,8 @@ public class HypertubeBlock extends TubeBlock implements EntityBlock {
     }
 
     @Override
-    public void neighborChanged(@NotNull BlockState state, @NotNull Level world, @NotNull BlockPos pos, @NotNull Block block, @NotNull BlockPos pos1, boolean b) {
-        super.neighborChanged(state, world, pos, block, pos1, b);
+    protected void neighborChanged(@NotNull BlockState state, @NotNull Level world, @NotNull BlockPos pos, @NotNull Block block, @Nullable Orientation orientation, boolean b) {
+        super.neighborChanged(state, world, pos, block, orientation, b);
         BlockState newState = getStateFromBlockEntity(state, world, pos);
         world.setBlockAndUpdate(pos, newState);
     }
@@ -305,7 +307,7 @@ public class HypertubeBlock extends TubeBlock implements EntityBlock {
     }
 
     @Override
-    public boolean propagatesSkylightDown(@NotNull BlockState state, @NotNull BlockGetter reader, @NotNull BlockPos pos) {
+    protected boolean propagatesSkylightDown(@NotNull BlockState state) {
         return true;
     }
 

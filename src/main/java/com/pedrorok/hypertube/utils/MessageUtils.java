@@ -20,7 +20,7 @@ public class MessageUtils {
         if (forceStay) {
             player.getPersistentData().putLong("last_action_message_stay", System.currentTimeMillis() + 2000);
         }
-        player.displayClientMessage(message, true);
+        player.sendOverlayMessage(message);
     }
 
     public static void sendActionMessage(Player player, String message) {

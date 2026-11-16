@@ -74,7 +74,7 @@ public class TubePathBlock extends Block implements EntityBlock, SimpleWaterlogg
     }
 
     @Override
-    protected boolean propagatesSkylightDown(BlockState state, BlockGetter level, BlockPos pos) {
+    protected boolean propagatesSkylightDown(BlockState state) {
         return true;
     }
 
@@ -94,7 +94,7 @@ public class TubePathBlock extends Block implements EntityBlock, SimpleWaterlogg
     }
 
     @Override
-    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state) {
+    protected ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData) {
         return ItemStack.EMPTY;
     }
 

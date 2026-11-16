@@ -177,7 +177,7 @@ public class SplitterScenes {
 
     private static void showPulse(CreateSceneBuilder scene, BlockPos splitterPos, Direction exitFace, int color, int durationTicks) {
         scene.addInstruction(ponderScene -> {
-            PonderLevel level = ponderScene.getWorld();
+            PonderLevel level = ponderScene.getLevel();
             if (!(level.getBlockEntity(splitterPos) instanceof HyperJunctionBlockEntity splitter)) return;
 
             IConnection connection = splitter.getConnectionInDirection(exitFace);

@@ -128,7 +128,7 @@ public class ServerConfig {
         for (String entityId : entityIds) {
             try {
                 Identifier location = Identifier.parse(entityId);
-                EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.get(location);
+                EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.getValue(location);
 
                 if (entityType != null) {
                     targetSet.add(entityType);
@@ -142,7 +142,7 @@ public class ServerConfig {
     }
 
     public static boolean canEntityTravel(EntityType<?> type) {
-        boolean isInTag = type.is(TravelConstants.TRAVELLER_ENTITIES);
+        boolean isInTag = type.builtInRegistryHolder().is(TravelConstants.TRAVELLER_ENTITIES);
         return get().canEntityTravel(type, isInTag);
     }
 

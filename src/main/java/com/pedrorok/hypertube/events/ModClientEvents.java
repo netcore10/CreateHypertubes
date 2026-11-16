@@ -1,5 +1,8 @@
 package com.pedrorok.hypertube.events;
 
+import com.pedrorok.hypertube.client.HypertubeTooltipBehaviour;
+import com.zurrtum.create.client.foundation.blockEntity.behaviour.audio.KineticAudioBehaviour;
+import com.zurrtum.create.api.behaviour.BlockEntityBehaviour;
 import com.pedrorok.hypertube.HypertubeMod;
 import com.pedrorok.hypertube.client.particles.SuctionParticle;
 import com.pedrorok.hypertube.client.renderer.TubeEntityRenderer;
@@ -29,6 +32,15 @@ public class ModClientEvents {
     @SubscribeEvent
     public static void forgeLoad(FMLClientSetupEvent event) {
         PonderIndex.addPlugin(new HypertubesPonderPlugin());
+
+        // Create Fly attaches kinetic sounds and goggle tooltips as client behaviours (Create had them on the block entity)
+        BlockEntityBehaviour.addClient(ModBlockEntities.HYPERTUBE_ENTRANCE.get(), KineticAudioBehaviour::new);
+        BlockEntityBehaviour.addClient(ModBlockEntities.HYPERTUBE_ENTRANCE.get(), HypertubeTooltipBehaviour::new);
+        BlockEntityBehaviour.addClient(ModBlockEntities.HYPER_ACCELERATOR.get(), KineticAudioBehaviour::new);
+        BlockEntityBehaviour.addClient(ModBlockEntities.HYPER_ACCELERATOR.get(), HypertubeTooltipBehaviour::new);
+        BlockEntityBehaviour.addClient(ModBlockEntities.HYPER_JUNCTION.get(), KineticAudioBehaviour::new);
+        BlockEntityBehaviour.addClient(ModBlockEntities.HYPER_JUNCTION.get(), HypertubeTooltipBehaviour::new);
+        BlockEntityBehaviour.addClient(ModBlockEntities.HYPERTUBE.get(), KineticAudioBehaviour::new);
     }
 
     @SubscribeEvent

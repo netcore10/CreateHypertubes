@@ -15,7 +15,6 @@ import com.pedrorok.hypertube.core.travel.TravelConstants;
 import com.pedrorok.hypertube.utils.JunctionDirectionUtils;
 import com.pedrorok.hypertube.utils.ModColors;
 import com.pedrorok.hypertube.utils.TubePulseRenderer;
-import com.zurrtum.create.client.api.goggles.IHaveHoveringInformation;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -43,7 +42,7 @@ import java.util.UUID;
  * @author Rok, Pedro Lucas nmm. Created on 21/04/2025
  * @project Create Hypertube
  */
-public class HyperJunctionBlockEntity extends ActionTubeBlockEntity implements IHaveHoveringInformation {
+public class HyperJunctionBlockEntity extends ActionTubeBlockEntity {
 
     private final UUID tubeSoundId = UUID.randomUUID();
 
@@ -119,9 +118,9 @@ public class HyperJunctionBlockEntity extends ActionTubeBlockEntity implements I
         playClientEffects(sound);
     }
 
-    @Override
+    /** Goggle lines for this block; shown by the client HypertubeTooltipBehaviour (26.2 / Create Fly moved goggles client-side). */
     @OnlyIn(Dist.CLIENT)
-    public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
+    public boolean addHypertubeGoggleInfo(List<Component> tooltip) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return false;
         if (mc.player.tickCount % 10 != 0) return false;

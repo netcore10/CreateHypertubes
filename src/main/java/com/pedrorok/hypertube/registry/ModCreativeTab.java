@@ -4,7 +4,6 @@ import com.pedrorok.hypertube.HypertubeMod;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -38,13 +37,9 @@ public class ModCreativeTab {
     @SubscribeEvent
     private static void addCreative(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey().equals(TUBE_TAB.getKey())) {
-            CreateRegistrate REGISTRATE = HypertubeMod.get();
-
-            for (RegistryEntry<Item, Item> entry : REGISTRATE.getAll(Registries.ITEM)) {
-                var item = entry.get();
-                if (item == Items.AIR) continue;
-                if (ModItems.TUBE_SCANNER_UNFINISHED.is(item)) return;
-                event.accept(item);
+            for (var entry : ModItems.ITEMS.getEntries()) {
+                if (entry == ModItems.TUBE_SCANNER_UNFINISHED) continue;
+                event.accept(entry.get());
             }
         }
     }

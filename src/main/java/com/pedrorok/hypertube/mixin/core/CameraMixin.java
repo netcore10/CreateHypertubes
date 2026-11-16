@@ -139,7 +139,8 @@ public abstract class CameraMixin {
         } else {
             f = 1.0F;
         }
-        float zoom = camera.createHypertube$callGetMaxZoom(ClientHooks.getDetachedCameraDistance(cameraObj, flipped, f, 4.0F) * f);
+        // 26.2: the NeoForge hook already applies the scale (scale * distance; no vehicle, so the same pair twice)
+        float zoom = camera.createHypertube$callGetMaxZoom(ClientHooks.getDetachedCameraDistance(cameraObj, flipped, f, 4.0F, f, 4.0F));
         camera.createHypertube$callMove(-zoom * eased, 0.0F, 0.0F);
 
         ci.cancel();

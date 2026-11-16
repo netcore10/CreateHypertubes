@@ -13,7 +13,6 @@ import com.pedrorok.hypertube.core.connection.TubeConnectionException;
 import com.pedrorok.hypertube.core.connection.interfaces.IConnection;
 import com.pedrorok.hypertube.core.sound.TubeSoundManager;
 import com.pedrorok.hypertube.core.travel.TravelConstants;
-import com.zurrtum.create.client.api.goggles.IHaveHoveringInformation;
 import com.zurrtum.create.content.kinetics.base.IRotate;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -40,7 +39,7 @@ import java.util.UUID;
  * @author Rok, Pedro Lucas nmm. Created on 21/04/2025
  * @project Create Hypertube
  */
-public class HyperAcceleratorBlockEntity extends ActionTubeBlockEntity implements IHaveHoveringInformation {
+public class HyperAcceleratorBlockEntity extends ActionTubeBlockEntity {
 
     private final UUID tubeSoundId = UUID.randomUUID();
 
@@ -110,13 +109,10 @@ public class HyperAcceleratorBlockEntity extends ActionTubeBlockEntity implement
         playClientEffects(sound);
     }
 
-    @Override
-    public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-        super.addToGoggleTooltip(tooltip, isPlayerSneaking);
+    /** Goggle lines for this block; shown by the client HypertubeTooltipBehaviour (26.2 / Create Fly moved goggles client-side). */
+    public boolean addHypertubeGoggleInfo(List<Component> tooltip) {
         float finalSpeed = Math.abs(this.getSpeed());
         boolean hasNeededSpeed = finalSpeed < TravelConstants.NEEDED_SPEED;
-        IRotate.SpeedLevel.getFormattedSpeedText(speed, hasNeededSpeed)
-                .forGoggles(tooltip);
 
         if (hasNeededSpeed) {
             tooltip.add(Component.literal("     ")

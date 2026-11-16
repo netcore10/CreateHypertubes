@@ -109,7 +109,7 @@ public class ClientTravelPathRender {
     public static void renderOverlay(GuiGraphicsExtractor guiGraphics, float partialTick) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.gameMode == null) return;
-        if (mc.options.hideGui || mc.gameMode.getPlayerMode() == GameType.SPECTATOR)
+        if (mc.gui.hud.isHidden() || mc.gameMode.getPlayerMode() == GameType.SPECTATOR)
             return;
 
         if (!isTraveling) return;

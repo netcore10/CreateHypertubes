@@ -11,6 +11,7 @@ import com.pedrorok.hypertube.registry.ModDataComponent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.core.NonNullList;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -121,18 +122,19 @@ public class TubeUtils {
         int foundTubes = 0;
 
         Inventory inv = player.getInventory();
-        int size = inv.items.size();
+        NonNullList<ItemStack> main = inv.getNonEquipmentItems();
+        int size = main.size();
         for (int j = 0; j <= size + 1; j++) {
             int i = j;
             boolean offhand = j == size + 1;
             if (j == size)
-                i = inv.selected;
+                i = inv.getSelectedSlot();
             else if (offhand)
                 i = 0;
-            else if (j == inv.selected)
+            else if (j == inv.getSelectedSlot())
                 continue;
 
-            ItemStack stackInSlot = (offhand ? inv.offhand : inv.items).get(i);
+            ItemStack stackInSlot = offhand ? inv.getItem(Inventory.SLOT_OFFHAND) : main.get(i);
             boolean isTube = ModBlocks.HYPERTUBE.toStack().is(stackInSlot.getItem());
             if (!isTube)
                 continue;

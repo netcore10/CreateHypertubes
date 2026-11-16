@@ -12,7 +12,6 @@ import com.pedrorok.hypertube.core.sound.TubeSoundManager;
 import com.pedrorok.hypertube.core.travel.TravelConstants;
 import com.pedrorok.hypertube.core.travel.TravelManager;
 import com.pedrorok.hypertube.utils.TubeUtils;
-import com.zurrtum.create.client.api.goggles.IHaveHoveringInformation;
 import com.zurrtum.create.content.kinetics.base.IRotate;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -39,7 +38,7 @@ import java.util.List;
  * @author Rok, Pedro Lucas nmm. Created on 21/04/2025
  * @project Create Hypertube
  */
-public class HyperEntranceBlockEntity extends ActionTubeBlockEntity implements IHaveHoveringInformation {
+public class HyperEntranceBlockEntity extends ActionTubeBlockEntity {
 
 
     @Getter
@@ -125,11 +124,9 @@ public class HyperEntranceBlockEntity extends ActionTubeBlockEntity implements I
         playClientEffects(sound);
     }
 
-    @Override
-    public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-        super.addToGoggleTooltip(tooltip, isPlayerSneaking);
+    /** Goggle lines for this block; shown by the client HypertubeTooltipBehaviour (26.2 / Create Fly moved goggles client-side). */
+    public boolean addHypertubeGoggleInfo(List<Component> tooltip) {
         float finalSpeed = Math.abs(this.getSpeed());
-        IRotate.SpeedLevel.getFormattedSpeedText(speed, finalSpeed < TravelConstants.NEEDED_SPEED).forGoggles(tooltip);
 
         if (getBlockState().getValue(HyperEntranceBlock.IN_FRONT)) {
             tooltip.add(Component.literal("     ").append(Component.translatable("tooltip.create_hypertube.entrance_blocked").withColor(0xFF0000)));
@@ -139,8 +136,8 @@ public class HyperEntranceBlockEntity extends ActionTubeBlockEntity implements I
         return true;
     }
 
-    @Override
-    public boolean addToTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
+    /** Hover lines for this block; shown by the client HypertubeTooltipBehaviour. */
+    public boolean addHypertubeHoverInfo(List<Component> tooltip) {
         if (getBlockState().getValue(HyperEntranceBlock.LOCKED) && Math.abs(this.getSpeed()) >= TravelConstants.NEEDED_SPEED) {
             tooltip.add(Component.literal("     ").append(Component.translatable("block.hypertube.hyper_entrance.sneak_to_enter")).withColor(0xFFFFFF));
         }

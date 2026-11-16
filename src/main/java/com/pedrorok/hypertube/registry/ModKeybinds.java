@@ -16,12 +16,12 @@ public enum ModKeybinds {
 
 	ESCAPE("tube_escape", GLFW.GLFW_KEY_LEFT_SHIFT);
 
-	public static final String CATEGORY = "key.categories.hypertube";
+
 
 	private final KeyMapping mapping;
 
 	ModKeybinds(String description, int defaultKey) {
-		this.mapping = new KeyMapping("key.hypertube." + description, defaultKey, CATEGORY);;
+		this.mapping = new KeyMapping("key.hypertube." + description, defaultKey, Categories.HYPERTUBE);
 	}
 
 	public boolean isDown() {
@@ -30,8 +30,7 @@ public enum ModKeybinds {
 
 	private boolean isKeyPressed() {
 		int keyCode = mapping.getKey().getValue();
-		long window = Minecraft.getInstance().getWindow().getWindow();
-		return InputConstants.isKeyDown(window, keyCode) && mapping.isConflictContextAndModifierActive();
+		return InputConstants.isKeyDown(Minecraft.getInstance().getWindow(), keyCode) && mapping.isConflictContextAndModifierActive();
 	}
 
 	public Component message() {
@@ -40,8 +39,14 @@ public enum ModKeybinds {
 
 	@SubscribeEvent
 	public static void register(RegisterKeyMappingsEvent event) {
+		event.registerCategory(Categories.HYPERTUBE);
 		for (ModKeybinds key : values()) {
 			event.register(key.mapping);
 		}
+	}
+
+	/** 26.2: key categories are registered objects (label key: key.category.create_hypertube.hypertube). Held outside the enum, which can't read its own statics in constructors. */
+	private static final class Categories {
+		static final KeyMapping.Category HYPERTUBE = new KeyMapping.Category(HypertubeMod.of("hypertube"));
 	}
 }
