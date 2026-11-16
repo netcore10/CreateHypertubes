@@ -2,12 +2,12 @@
   "required": true,
   "minVersion": "0.8",
   "package": "com.pedrorok.hypertube.mixin.core",
-  "refmap": "create_hypertube.refmap.json",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "EntityTravelingMixin",
     "IPlayerExtensionMixin",
     "KineticBlockMixin",
+    "LivingEntityTravelingMixin",
     "PlayerMixin",
     "PlayerMovementMixin",
     "ServerGamePacketListenerImplMixin"

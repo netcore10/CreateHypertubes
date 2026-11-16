@@ -33,7 +33,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,7 +50,6 @@ public class TubePlacement {
     static LerpedFloat animation = LerpedFloat.linear()
             .startWithValue(0);
 
-    @OnlyIn(Dist.CLIENT)
     @SuppressWarnings("D")
     public static void clientTick() {
         LocalPlayer player = Minecraft.getInstance().player;
@@ -241,7 +239,6 @@ public class TubePlacement {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static void drawCustomBlockSelection(PoseStack ms, SubmitNodeCollector collector, Vec3 camera) {
         ItemStack mainHandItem = Minecraft.getInstance().player.getMainHandItem();
         if (!mainHandItem.is(ModBlocks.HYPERTUBE.asItem())) return;

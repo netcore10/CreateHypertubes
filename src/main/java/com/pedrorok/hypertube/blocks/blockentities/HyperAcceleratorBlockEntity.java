@@ -29,7 +29,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -98,7 +97,6 @@ public class HyperAcceleratorBlockEntity extends ActionTubeBlockEntity {
     }
 
 
-    @OnlyIn(Dist.CLIENT)
     private void tickClient() {
         float actualSpeed = Math.abs(this.getSpeed());
         TubeSoundManager.TubeAmbientSound sound = TubeSoundManager.getAmbientSound(tubeSoundId);

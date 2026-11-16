@@ -5,7 +5,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import java.util.List;
 import java.util.Map;
@@ -15,7 +14,6 @@ import java.util.Map;
  * @project Create Hypertube
  */
 @Getter
-@OnlyIn(Dist.CLIENT)
 public class TubePulseEffect {
 
     private final BlockPos originBlockPos;

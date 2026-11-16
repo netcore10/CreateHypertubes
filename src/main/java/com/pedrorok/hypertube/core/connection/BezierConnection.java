@@ -19,7 +19,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -283,7 +282,6 @@ public class BezierConnection implements IConnection {
     }
 
 
-    @OnlyIn(Dist.CLIENT)
     public void drawPath(LerpedFloat animation, boolean isValid) {
         if (distance() > MAX_REASONABLE_DISTANCE) return;
 
@@ -300,7 +298,6 @@ public class BezierConnection implements IConnection {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static void line(UUID uuid, int id, Vec3 start, Vec3 end, LerpedFloat animation, boolean hasException) {
         int color = Color.mixColors(0xEA5C2B, 0x95CD41, animation.getValue());
         if (hasException) {
@@ -314,7 +311,6 @@ public class BezierConnection implements IConnection {
                 .colored(color);
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static void outlineBlocks(BlockPos pos) {
         Outliner.getInstance().showAABB(pos.asLong(), new AABB(pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1,
                         pos.getX(), pos.getY(), pos.getZ()))

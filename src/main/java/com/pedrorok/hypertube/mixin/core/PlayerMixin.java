@@ -6,7 +6,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -31,7 +30,6 @@ public class PlayerMixin {
     }
 
     @Unique
-    @OnlyIn(Dist.CLIENT)
     private void createHypertube$tickInClient(Player player) {
         if (!Minecraft.getInstance().player.getUUID().equals(player.getUUID())) {
             return;

@@ -18,6 +18,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.ClientHooks;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -36,7 +37,7 @@ public abstract class CameraMixin {
     @Shadow
     private boolean detached;
 
-    @Shadow public abstract Entity getEntity();
+    @Shadow public abstract @Nullable Entity entity();
 
     @Unique
     private long createHypertube$lastTickTime = 0;
@@ -47,12 +48,15 @@ public abstract class CameraMixin {
         this.detached = newDetached;
     }
 
-    @Inject(method = "setup", at = @At("HEAD"), cancellable = true)
-    private void createHypertube$onSetup(BlockGetter p_90576_, Entity renderViewEntity, boolean isFrontView, boolean flipped, float PartialTicks, CallbackInfo ci) {
-        if (this.getEntity() == null) {
+    // 26.2: Camera#setup became Camera#update + alignWithEntity(partialTicks), which positions the camera and sets `detached`
+    @Inject(method = "alignWithEntity", at = @At("HEAD"), cancellable = true)
+    private void createHypertube$onSetup(float PartialTicks, CallbackInfo ci) {
+        Entity renderViewEntity = this.entity();
+        if (renderViewEntity == null) {
             return;
         }
         Options options = Minecraft.getInstance().options;
+        boolean flipped = options.getCameraType().isMirrored();
         Player player = Minecraft.getInstance().player;
         if (renderViewEntity != player) return;
 

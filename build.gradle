@@ -58,6 +58,9 @@ dependencies {
     runMods "maven.modrinth:launchpad:${launchpad_version}"
     runMods "maven.modrinth:forgified-fabric-api:${forgified_fabric_api_version}"
     runMods "maven.modrinth:create-fly:${create_fly_version}"
+    // Create Fly needs Connector Compat Patch (github.com/netcore10/ConnectorCompatPatch) to load on NeoForge;
+    // point -PconnectorCompatPatchJar=<path> at a built jar (default: a sibling checkout's build output)
+    runMods files(project.findProperty('connectorCompatPatchJar') ?: "${rootDir}/../CreateFly-ConnectorPatch/plugin/build/libs/connector-compat-patch-1.0.0.jar")
 }
 
 def installRunMods = tasks.register('installRunMods', Sync) {

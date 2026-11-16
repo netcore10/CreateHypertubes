@@ -28,7 +28,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -113,7 +112,6 @@ public class HyperEntranceBlockEntity extends ActionTubeBlockEntity {
         TubeSoundManager.playTubeSuctionSound(inRangeEntity, Vec3.atCenterOf(getBlockPos()));
     }
 
-    @OnlyIn(Dist.CLIENT)
     private void tickClient(boolean isBlocked) {
         float actualSpeed = Math.abs(this.getSpeed());
         TubeSoundManager.TubeAmbientSound sound = TubeSoundManager.getAmbientSound(tubeSoundId);

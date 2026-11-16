@@ -19,7 +19,6 @@ import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -29,7 +28,6 @@ import java.util.List;
  * @author Rok, Pedro Lucas nmm. 29/07/2026
  * @project Create Hypertube
  */
-@OnlyIn(Dist.CLIENT)
 public class TubePulsePonderElement extends PonderElementBase implements PonderSceneElement {
 
     // 1.21.1 used a custom translucent line type; 26.2 has it built in

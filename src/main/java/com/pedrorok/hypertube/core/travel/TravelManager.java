@@ -32,7 +32,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.UUID;
@@ -126,7 +125,6 @@ public class TravelManager {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     private static void clientTick(Player player) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;

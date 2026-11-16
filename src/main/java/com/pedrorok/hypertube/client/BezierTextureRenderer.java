@@ -20,7 +20,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -32,7 +31,6 @@ import java.util.List;
  * @author Rok, Pedro Lucas nmm. Created on 22/05/2025
  * @project Create Hypertube
  */
-@OnlyIn(Dist.CLIENT)
 public class BezierTextureRenderer {
 
     private static BezierTextureRenderer INSTANCE;

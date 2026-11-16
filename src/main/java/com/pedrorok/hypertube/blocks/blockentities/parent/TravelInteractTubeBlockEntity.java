@@ -20,7 +20,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -76,7 +75,6 @@ public abstract class TravelInteractTubeBlockEntity extends TubeBlockEntity {
     }
 
 
-    @OnlyIn(Dist.CLIENT)
     protected void playClientEffects(TubeSoundManager.TubeAmbientSound sound) {
         BlockState state = this.getBlockState();
         BlockPos pos = this.getBlockPos();
@@ -165,7 +163,6 @@ public abstract class TravelInteractTubeBlockEntity extends TubeBlockEntity {
         super.remove();
     }
 
-    @OnlyIn(Dist.CLIENT)
     private void removeClient() {
         TubeSoundManager.getAmbientSound(tubeSoundId).stopSound();
         TubeSoundManager.removeAmbientSound(tubeSoundId);

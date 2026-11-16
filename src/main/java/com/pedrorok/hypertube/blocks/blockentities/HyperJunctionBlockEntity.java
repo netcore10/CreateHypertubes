@@ -31,7 +31,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -107,7 +106,6 @@ public class HyperJunctionBlockEntity extends ActionTubeBlockEntity {
     }
 
 
-    @OnlyIn(Dist.CLIENT)
     private void tickClient() {
         float actualSpeed = Math.abs(this.getSpeed());
         TubeSoundManager.TubeAmbientSound sound = TubeSoundManager.getAmbientSound(tubeSoundId);
@@ -119,7 +117,6 @@ public class HyperJunctionBlockEntity extends ActionTubeBlockEntity {
     }
 
     /** Goggle lines for this block; shown by the client HypertubeTooltipBehaviour (26.2 / Create Fly moved goggles client-side). */
-    @OnlyIn(Dist.CLIENT)
     public boolean addHypertubeGoggleInfo(List<Component> tooltip) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return false;
@@ -145,7 +142,6 @@ public class HyperJunctionBlockEntity extends ActionTubeBlockEntity {
         return false;
     }
 
-    @OnlyIn(Dist.CLIENT)
     private void renderFromDirections(List<Direction> directions, float speed, int color, float radius) {
         Minecraft mc = Minecraft.getInstance();
         for (Direction direction : directions) {

@@ -4,7 +4,8 @@
 	"parent": "create:block/large_wheels",
 	"texture_size": [32, 32],
 	"textures": {
-		"1_2": "create_hypertube:block/cogwheel"
+		"1_2": "create_hypertube:block/cogwheel",
+		"particle": "create_hypertube:block/cogwheel"
 	},
 	"elements": [
 		{
