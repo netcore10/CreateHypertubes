@@ -1,54 +1,92 @@
 plugins {
-    id "net.fabricmc.fabric-loom" version "${loom_version}"
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.148'
 }
 
-// Build setup follows Create Fly's own 26.2 build (github.com/ZurrTum/Create-Fly, branch 26.2)
+version = mod_version
+group = mod_group_id
+
 repositories {
     exclusiveContent {
-        forRepository { maven { url = "https://api.modrinth.com/maven" } }
-        filter { includeGroup "maven.modrinth" }
+        forRepository { maven { name = 'Modrinth'; url = 'https://api.modrinth.com/maven' } }
+        filter { includeGroup 'maven.modrinth' }
     }
 }
 
-version = project.mod_version
-group = project.mod_group_id
-
 base {
-    archivesName = "${project.mod_id}-${project.minecraft_version}-fly"
+    archivesName = mod_id
 }
 
-loom {
-    splitEnvironmentSourceSets()
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
+
+configurations {
+    // Fabric mods + Connector, copied into run/mods for dev runs (the way a modpack loads them)
+    runMods { canBeResolved = true; canBeConsumed = false; transitive = false }
+}
+
+neoForge {
+    version = project.neo_version
+    runs {
+        client {
+            client()
+        }
+        server {
+            server()
+            programArgument '--nogui'
+        }
+        configureEach {
+            gameDirectory = file('run')
+            systemProperty 'forge.logging.markers', 'REGISTRIES'
+        }
+    }
     mods {
-        create_hypertube {
-            sourceSet sourceSets.main
-            sourceSet sourceSets.client
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
         }
     }
 }
 
 dependencies {
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    implementation "maven.modrinth:create-fly:${project.create_fly_version}"
+    compileOnly 'org.projectlombok:lombok:1.18.42'
+    annotationProcessor 'org.projectlombok:lombok:1.18.42'
+
+    // Create Fly's classes are used directly; at runtime they are Connector's copy of the same jar
+    compileOnly "maven.modrinth:create-fly:${create_fly_version}"
+    compileOnly "maven.modrinth:forgified-fabric-api:${forgified_fabric_api_version}"
+
+    runMods "maven.modrinth:connector:${connector_version}"
+    runMods "maven.modrinth:launchpad:${launchpad_version}"
+    runMods "maven.modrinth:forgified-fabric-api:${forgified_fabric_api_version}"
+    runMods "maven.modrinth:create-fly:${create_fly_version}"
 }
 
-processResources {
-    def props = [version: project.version]
-    inputs.properties props
-    filesMatching("fabric.mod.json") { expand props }
+def installRunMods = tasks.register('installRunMods', Sync) {
+    from configurations.runMods
+    into 'run/mods'
+}
+tasks.matching { it.name.startsWith('prepare') && it.name.endsWith('Run') }.configureEach { dependsOn installRunMods }
+
+var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
+    var replaceProperties = [minecraft_version      : minecraft_version,
+                             minecraft_version_range: minecraft_version_range,
+                             neo_version            : neo_version,
+                             neo_version_range      : neo_version_range,
+                             loader_version_range   : loader_version_range,
+                             mod_id                 : mod_id,
+                             mod_name               : mod_name,
+                             mod_license            : mod_license,
+                             mod_version            : mod_version,
+                             mod_authors            : mod_authors,
+                             mod_description        : mod_description]
+    inputs.properties replaceProperties
+    expand replaceProperties
+    from "src/main/templates"
+    into "build/generated/sources/modMetadata"
 }
 
-tasks.withType(JavaCompile).configureEach {
-    it.options.release = 25
-}
+sourceSets.main.resources.srcDir generateModMetadata
+neoForge.ideSyncTask generateModMetadata
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_25
-    targetCompatibility = JavaVersion.VERSION_25
-}
-
-jar {
-    from("LICENSE")
+tasks.withType(Jar).configureEach {
+    archiveFileName = "${mod_id}-${version}-${archive_classifier}.jar"
 }
