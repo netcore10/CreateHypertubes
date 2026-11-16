@@ -97,4 +97,3 @@ tasks.withType(Jar).configureEach {
 tasks.withType(JavaCompile).configureEach {
     options.compilerArgs += ['-Xmaxerrs', '5000', '-proc:full']
 }
-sourceSets.main.java { exclude '**/client/renderer/**' }

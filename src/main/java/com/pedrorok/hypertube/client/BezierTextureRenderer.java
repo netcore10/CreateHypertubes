@@ -6,9 +6,14 @@ import com.pedrorok.hypertube.HypertubeMod;
 import com.pedrorok.hypertube.core.connection.BezierConnection;
 import com.zurrtum.create.client.ponder.foundation.ui.PonderUI;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.util.Util;
+import java.util.function.Function;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
@@ -40,6 +45,21 @@ public class BezierTextureRenderer {
 
     private static final float UP_ALIGNMENT_THRESHOLD = 0.999f;
 
+    /** RenderType.entityTranslucentCull from 1.21.1: 26.2 keeps the pipeline but no longer has a shortcut for it. */
+    private static final Function<Identifier, RenderType> ENTITY_TRANSLUCENT_CULL = Util.memoize(texture -> RenderType.create(
+            "create_hypertube_entity_translucent_cull",
+            RenderSetup.builder(RenderPipelines.ENTITY_TRANSLUCENT_CULL)
+                    .withTexture("Sampler0", texture)
+                    .useLightmap()
+                    .useOverlay()
+                    .affectsCrumbling()
+                    .sortOnUpload()
+                    .createRenderSetup()));
+
+    private static RenderType entityTranslucentCull(Identifier texture) {
+        return ENTITY_TRANSLUCENT_CULL.apply(texture);
+    }
+
     private final Identifier textureTube;
     private final Identifier textureLine;
 
@@ -48,7 +68,7 @@ public class BezierTextureRenderer {
         this.textureLine = HypertubeMod.of("textures/block/tube_base_glass_2.png");
     }
 
-    public void renderBezierConnection(BlockPos blockPosInitial, BezierConnection connection, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+    public void renderBezierConnection(BlockPos blockPosInitial, BezierConnection connection, PoseStack poseStack, SubmitNodeCollector collector, int packedLight, int packedOverlay) {
         if (connection == null) {
             return;
         }
@@ -65,23 +85,17 @@ public class BezierTextureRenderer {
 
         int segmentDistance = connection.getTubeSegments();
 
-        poseStack.pushPose();
-        Matrix4f pose = poseStack.last().pose();
-
         List<TubeRing> tubeGeometry = calculateAndCacheGeometry(bezierPoints);
 
         int[] ringLights = calculateRingLights(level, blockPosInitial, tubeGeometry);
 
-        VertexConsumer builderExterior = bufferSource.getBuffer(RenderType.entityTranslucentCull(textureTube));
-        renderComponent(builderExterior, pose, ringLights, packedOverlay, tubeGeometry, SectionType.EXTERIOR, segmentDistance);
-
-        VertexConsumer builderInterior = bufferSource.getBuffer(RenderType.entityTranslucent(textureTube));
-        renderComponent(builderInterior, pose, ringLights, packedOverlay, tubeGeometry, SectionType.INTERIOR, segmentDistance);
-
-        VertexConsumer builderLine = bufferSource.getBuffer(RenderType.entityTranslucentCull(textureLine));
-        renderComponent(builderLine, pose, ringLights, packedOverlay, tubeGeometry, SectionType.LINE, segmentDistance);
-
-        poseStack.popPose();
+        // 26.2: geometry is submitted to the frame's SubmitNodeCollector instead of drawn into a MultiBufferSource
+        collector.submitCustomGeometry(poseStack, entityTranslucentCull(textureTube), (pose, builder) ->
+                renderComponent(builder, pose.pose(), ringLights, packedOverlay, tubeGeometry, SectionType.EXTERIOR, segmentDistance));
+        collector.submitCustomGeometry(poseStack, RenderTypes.entityTranslucent(textureTube), (pose, builder) ->
+                renderComponent(builder, pose.pose(), ringLights, packedOverlay, tubeGeometry, SectionType.INTERIOR, segmentDistance));
+        collector.submitCustomGeometry(poseStack, entityTranslucentCull(textureLine), (pose, builder) ->
+                renderComponent(builder, pose.pose(), ringLights, packedOverlay, tubeGeometry, SectionType.LINE, segmentDistance));
     }
 
     private void renderComponent(VertexConsumer builder, Matrix4f pose, int[] ringLights, int packedOverlay,
@@ -167,7 +181,7 @@ public class BezierTextureRenderer {
                     blockPosInitial.getX() + center.x,
                     blockPosInitial.getY() + center.y,
                     blockPosInitial.getZ() + center.z);
-            ringLights[i] = LevelRenderer.getLightColor(level, lightPos);
+            ringLights[i] = LightCoordsUtil.getLightCoords(level, lightPos);
         }
         return ringLights;
     }
